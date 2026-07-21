@@ -132,7 +132,7 @@ export default function StudentsPage() {
       </div>
 
       {/* Search & Filter Bar */}
-      <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: 20, display: 'flex', itemsCenter: 'center', gap: 16 }}>
+      <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
         <div style={{ position: 'relative', flex: 1 }}>
           <Search style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', width: 17, height: 17, color: 'var(--slate-400)' }} />
           <input
