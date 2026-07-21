@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Clock, ChevronLeft, ChevronRight, Flag, CheckCircle2, Loader2, BookOpen, AlertTriangle, X } from 'lucide-react';
 import api from '../../lib/api';
@@ -11,7 +11,7 @@ interface SubjectTab { id: string; name: string; }
 
 const ALPHA = ['A', 'B', 'C', 'D', 'E'];
 
-export default function CustomExamPage() {
+function ExamContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const attemptId    = searchParams.get('attemptId');
@@ -479,5 +479,17 @@ export default function CustomExamPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function CustomExamPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 10, color: 'var(--slate-400)' }}>
+        <Loader2 size={20} className="animate-spin" /> Loading exam...
+      </div>
+    }>
+      <ExamContent />
+    </Suspense>
   );
 }
