@@ -712,7 +712,7 @@ export default function PDFUploadStudioPage() {
                               background: opt.isCorrect ? '#ECFDF5' : 'white',
                               color: opt.isCorrect ? '#059669' : 'var(--slate-700)',
                               fontSize: 12, fontWeight: opt.isCorrect ? 700 : 500,
-                              display: 'flex', alignItems: 'center', justify: 'space-between', gap: 8,
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
                             }}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
