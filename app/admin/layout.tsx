@@ -15,12 +15,14 @@ import {
   Menu,
   X,
   Bell,
+  Flag,
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/auth.store';
 
 const NAV = [
   { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
   { label: 'Upload & Subject Studio', path: '/admin/upload', icon: UploadCloud },
+  { label: 'Flagged Questions', path: '/admin/flagged', icon: Flag },
   { label: 'Tests', path: '/admin/tests', icon: FileText },
   { label: 'AI Generator', path: '/admin/ai', icon: Sparkles },
   { label: 'Students', path: '/admin/students', icon: Users },

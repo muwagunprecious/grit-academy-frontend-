@@ -90,7 +90,8 @@ function ExamContent() {
     try {
       const payloadAnswers = Object.entries(answers).map(([qId, optId]) => ({ questionId: qId, selectedOptionId: optId }));
       const timeUsed = totalDurationSecs - timeLeft;
-      await api.post(`/attempts/${attemptId}/submit`, { answers: payloadAnswers, timeUsed });
+      const flaggedQuestionIds = Array.from(flagged);
+      await api.post(`/attempts/${attemptId}/submit`, { answers: payloadAnswers, timeUsed, flaggedQuestionIds });
       router.push(`/dashboard/results/${attemptId}`);
     } catch {
       router.push(`/dashboard/results/${attemptId}`);
