@@ -118,6 +118,7 @@ export default function TestsPage() {
       const res = await api.post('/attempts/custom', {
         subjectIds: selectedSubjectIds,
         duration: Math.min(30, duration),
+        questionsPerSubject: 30,
       });
       router.push(`/exam?attemptId=${res.data.data.attemptId}`);
     } catch (err: any) {
@@ -133,6 +134,7 @@ export default function TestsPage() {
       const res = await api.post('/attempts/custom', {
         subjectIds: [subjectId],
         duration: 30,
+        questionsPerSubject: 30,
       });
       router.push(`/exam?attemptId=${res.data.data.attemptId}`);
     } catch (err: any) {
