@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/auth.store';
+import api from '../../lib/api';
 
 const NAV_ITEMS = [
   { label: 'Overview',       href: '/dashboard',           icon: '◈' },
@@ -197,8 +198,71 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page Content */}
-        <main style={{ flex: 1, padding: '20px 16px', overflowY: 'auto' }} className="dash-content">
-          {mounted ? children : (
+        <main style={{ flex: 1, padding: '20px 16px', overflowY: 'auto', position: 'relative' }} className="dash-content">
+          {mounted ? (
+            <>
+              {/* Unpaid Student Paywall Banner/Modal */}
+              {user?.role === 'STUDENT' && user?.hasPaidAccessFee === false && pathname !== '/dashboard/profile' ? (
+                <div style={{
+                  background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+                  borderRadius: 24, padding: '36px 32px', color: 'white',
+                  border: '1.5px solid rgba(239,68,68,0.3)',
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
+                  marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 16,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.15)',
+                      border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', fontSize: 20,
+                    }}>🔒</div>
+                    <div>
+                      <h3 style={{ fontSize: 20, fontWeight: 900, color: 'white', margin: 0 }}>
+                        Platform Access Locked (₦500 Access Fee Required)
+                      </h3>
+                      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: '4px 0 0', fontWeight: 500 }}>
+                        Pay a one-time ₦500 platform fee to unlock unlimited practice CBT tests, AI step-by-step correction explainers, reading passages, interactive schematics, and analytics.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', paddingTop: 8 }}>
+                    <button
+                      onClick={async () => {
+                        try {
+                          // Fetch practice tests to initialize payment on test package
+                          const testsRes = await api.get('/tests');
+                          const tests = testsRes.data?.data?.tests || [];
+                          const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
+
+                          const payRes = await api.post('/payment/initialize', { testId: targetTestId });
+                          const authUrl = payRes.data?.data?.authorization_url;
+                          if (authUrl) {
+                            window.location.href = authUrl;
+                          }
+                        } catch (err: any) {
+                          alert(err.response?.data?.message || 'Payment initialization failed. Please try again.');
+                        }
+                      }}
+                      style={{
+                        padding: '12px 24px', borderRadius: 14, border: 'none',
+                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                        color: 'white', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                        boxShadow: '0 4px 20px rgba(5,150,105,0.4)', transition: 'all 0.18s',
+                      }}
+                    >
+                      💳 Pay ₦500 via Paystack Now
+                    </button>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+                      ⚡ Instant automated activation via Paystack
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+
+              {children}
+            </>
+          ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
               <div style={{ width: 32, height: 32, border: '3px solid var(--slate-200)', borderTopColor: 'var(--blue-600)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
             </div>

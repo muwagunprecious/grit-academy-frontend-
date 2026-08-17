@@ -8,6 +8,7 @@ interface User {
   lastName: string;
   role: 'STUDENT' | 'ADMIN' | 'SUPER_ADMIN';
   photo?: string;
+  hasPaidAccessFee?: boolean;
 }
 
 interface AuthState {
