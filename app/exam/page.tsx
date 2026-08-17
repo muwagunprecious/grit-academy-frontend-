@@ -2,14 +2,33 @@
 
 import React, { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, ChevronLeft, ChevronRight, Flag, CheckCircle2, Loader2, BookOpen, AlertTriangle, X } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, Flag, CheckCircle2, Loader2, BookOpen, AlertTriangle, X, Image as ImageIcon } from 'lucide-react';
 import api from '../../lib/api';
+import DiagramModal from '../components/DiagramModal';
+import PassageModal from '../components/PassageModal';
 
 interface Option   { id: string; text: string; }
-interface Question { id: string; order: number; text: string; type: string; options: Option[]; subjectId: string; subjectName?: string; topic?: string; }
+interface Question { id: string; order: number; text: string; passage?: string | null; imageUrl?: string | null; type: string; options: Option[]; subjectId: string; subjectName?: string; topic?: string; }
 interface SubjectTab { id: string; name: string; }
 
 const ALPHA = ['A', 'B', 'C', 'D', 'E'];
+
+const DEFAULT_ENGLISH_STORY = `A hungry Wolf once saw a Lamb drinking water at a stream far down below. Seeking a pretext to devour the innocent Lamb, the Wolf called out angrily: "How dare you muddle the water I am drinking?"\n\nThe Lamb replied humbly: "Sir, I am drinking far downstream from you, so the water flows from you to me, not from me to you."\n\nSeeing his initial excuse fail, the Wolf snarled: "Well, last year you slandered me!"\n\n"Sir," pleaded the Lamb, "I was not even born last year!"\n\n"Then it must have been your father or your forefather who spoke ill of me!" roared the Wolf, and without waiting another moment, he pounced upon the helpless Lamb and devoured him.`;
+
+function isDiagramQuestion(text: string, imageUrl?: string | null): boolean {
+  if (imageUrl) return true;
+  return /diagram|figure|illustration|circuit|capacitors?\s+[pq]|capacitance|graph\s+below|shown\s+below/i.test(text);
+}
+
+function getQuestionPassage(q?: Question | null): string | null {
+  if (!q) return null;
+  if (q.passage && q.passage.trim().length > 10) return q.passage;
+  const lower = q.text.toLowerCase();
+  if (lower.includes('passage') || lower.includes('story') || lower.includes('moral of the story') || lower.includes('wolf') || lower.includes('lamb') || lower.includes('comprehension')) {
+    return DEFAULT_ENGLISH_STORY;
+  }
+  return null;
+}
 
 function ExamContent() {
   const router       = useRouter();
@@ -28,6 +47,9 @@ function ExamContent() {
   const [submitting,        setSubmitting]         = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm]  = useState(false);
   const [showQNav,          setShowQNav]           = useState(false);
+  const [showPassage,       setShowPassage]        = useState(true);
+  const [showDiagramModal,  setShowDiagramModal]   = useState(false);
+  const [showPassageModal,  setShowPassageModal]   = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -239,6 +261,48 @@ function ExamContent() {
                 </button>
               </div>
 
+              {/* Passage Card (if current question relies on a passage) */}
+              {currentQuestion.passage && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(30,58,138,0.25) 0%, rgba(15,23,42,0.6) 100%)',
+                  borderRadius: 20,
+                  border: '1.5px solid rgba(59,130,246,0.3)',
+                  padding: '20px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <BookOpen style={{ width: 16, height: 16, color: '#60A5FA' }} />
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        Reading Passage
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setShowPassage(v => !v)}
+                      style={{
+                        padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)',
+                        background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)',
+                        fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                      }}
+                    >
+                      {showPassage ? 'Minimize' : 'Read Passage'}
+                    </button>
+                  </div>
+
+                  {showPassage && (
+                    <div style={{
+                      maxHeight: 260, overflowY: 'auto', paddingRight: 6,
+                      fontSize: 14, fontWeight: 400, color: 'rgba(255,255,255,0.88)',
+                      lineHeight: 1.8, whiteSpace: 'pre-line',
+                      background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: 12,
+                      border: '1px solid rgba(255,255,255,0.05)',
+                    }}>
+                      {currentQuestion.passage}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Question Card */}
               <div style={{
                 background: 'rgba(255,255,255,0.04)', borderRadius: 20,
@@ -248,6 +312,40 @@ function ExamContent() {
                 <p style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.92)', lineHeight: 1.7, margin: 0 }}>
                   {currentQuestion.text}
                 </p>
+
+                {/* Action Buttons for Passage & Diagram */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
+                  {getQuestionPassage(currentQuestion) && (
+                    <button
+                      onClick={() => setShowPassageModal(true)}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        padding: '9px 18px', borderRadius: 12, border: '1px solid rgba(59,130,246,0.4)',
+                        background: 'linear-gradient(135deg, rgba(30,58,138,0.5) 0%, rgba(15,23,42,0.8) 100%)',
+                        color: '#93C5FD', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(37,99,235,0.25)', transition: 'all 0.15s',
+                      }}
+                    >
+                      <BookOpen style={{ width: 15, height: 15, color: '#60A5FA' }} /> 📖 Read Story / Passage
+                    </button>
+                  )}
+
+                  {isDiagramQuestion(currentQuestion.text, currentQuestion.imageUrl) && (
+                    <button
+                      onClick={() => setShowDiagramModal(true)}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        padding: '9px 18px', borderRadius: 12, border: '1px solid rgba(96,165,250,0.4)',
+                        background: 'linear-gradient(135deg, rgba(37,99,235,0.3) 0%, rgba(30,58,138,0.4) 100%)',
+                        color: '#93C5FD', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(37,99,235,0.25)', transition: 'all 0.15s',
+                      }}
+                    >
+                      <ImageIcon style={{ width: 15, height: 15, color: '#60A5FA' }} /> 🖼️ View Question Diagram & Schematic
+                    </button>
+                  )}
+                </div>
+
                 {currentQuestion.topic && (
                   <div style={{ marginTop: 12, fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 600 }}>
                     Topic: {currentQuestion.topic}
@@ -295,61 +393,81 @@ function ExamContent() {
               {/* Navigation Controls */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)',
+                paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', gap: 12, flexWrap: 'wrap',
               }}>
                 <button
                   onClick={() => setCurrentQIndex((q) => Math.max(0, q - 1))}
                   disabled={currentQIndex === 0}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '10px 18px', borderRadius: 11, border: 'none',
-                    background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)',
-                    fontSize: 12, fontWeight: 700, cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer',
-                    opacity: currentQIndex === 0 ? 0.4 : 1, transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '11px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)',
+                    fontSize: 13, fontWeight: 700, cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer',
+                    opacity: currentQIndex === 0 ? 0.35 : 1, transition: 'all 0.15s',
                   }}
                 >
-                  <ChevronLeft style={{ width: 15, height: 15 }} /> Prev
+                  <ChevronLeft style={{ width: 16, height: 16 }} /> Previous
                 </button>
 
-                {/* Dot progress indicators */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 200 }}>
-                  {activeSubjectQuestions.slice(0, 10).map((q, i) => (
-                    <button key={q.id} onClick={() => setCurrentQIndex(i)} style={{
-                      width: i === currentQIndex ? 20 : 8, height: 8, borderRadius: 4, border: 'none',
-                      background: i === currentQIndex ? '#2563EB' : answers[q.id] ? '#059669' : flagged.has(q.id) ? '#F59E0B' : 'rgba(255,255,255,0.15)',
-                      cursor: 'pointer', transition: 'all 0.2s', padding: 0,
-                    }} />
-                  ))}
-                  {activeSubjectQuestions.length > 10 && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>+{activeSubjectQuestions.length - 10}</span>}
+                {/* Question index indicator */}
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+                  Question {currentQIndex + 1} of {activeSubjectQuestions.length}
                 </div>
 
-                {currentQIndex < activeSubjectQuestions.length - 1 ? (
-                  <button
-                    onClick={() => setCurrentQIndex((q) => Math.min(activeSubjectQuestions.length - 1, q + 1))}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 7,
-                      padding: '10px 18px', borderRadius: 11, border: 'none',
-                      background: '#2563EB', color: 'white',
-                      fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                      boxShadow: '0 0 16px rgba(37,99,235,0.4)', transition: 'all 0.15s',
-                    }}
-                  >
-                    Next <ChevronRight style={{ width: 15, height: 15 }} />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowSubmitConfirm(true)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 7,
-                      padding: '10px 18px', borderRadius: 11, border: 'none',
-                      background: 'linear-gradient(135deg, #059669, #047857)', color: 'white',
-                      fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                      boxShadow: '0 0 16px rgba(5,150,105,0.4)',
-                    }}
-                  >
-                    <CheckCircle2 style={{ width: 14, height: 14 }} /> Finish
-                  </button>
-                )}
+                {(() => {
+                  const currentSubIndex = subjects.findIndex((s) => s.id === activeSubjectId);
+                  const nextSubject = subjects[currentSubIndex + 1];
+
+                  if (currentQIndex < activeSubjectQuestions.length - 1) {
+                    return (
+                      <button
+                        onClick={() => setCurrentQIndex((q) => Math.min(activeSubjectQuestions.length - 1, q + 1))}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '11px 22px', borderRadius: 12, border: 'none',
+                          background: '#2563EB', color: 'white',
+                          fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                          boxShadow: '0 4px 14px rgba(37,99,235,0.3)', transition: 'all 0.15s',
+                        }}
+                      >
+                        Next Question <ChevronRight style={{ width: 16, height: 16 }} />
+                      </button>
+                    );
+                  } else if (nextSubject) {
+                    return (
+                      <button
+                        onClick={() => {
+                          setActiveSubjectId(nextSubject.id);
+                          setCurrentQIndex(0);
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '11px 22px', borderRadius: 12, border: 'none',
+                          background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', color: 'white',
+                          fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                          boxShadow: '0 4px 14px rgba(37,99,235,0.35)', transition: 'all 0.15s',
+                        }}
+                      >
+                        Next Subject: {nextSubject.name} <ChevronRight style={{ width: 16, height: 16 }} />
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <button
+                        onClick={() => setShowSubmitConfirm(true)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '11px 22px', borderRadius: 12, border: 'none',
+                          background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: 'white',
+                          fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                          boxShadow: '0 4px 14px rgba(5,150,105,0.35)', transition: 'all 0.15s',
+                        }}
+                      >
+                        <CheckCircle2 style={{ width: 16, height: 16 }} /> Submit Exam Now →
+                      </button>
+                    );
+                  }
+                })()}
               </div>
             </>
           ) : (
@@ -463,6 +581,26 @@ function ExamContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Diagram Modal */}
+      {currentQuestion && (
+        <DiagramModal
+          isOpen={showDiagramModal}
+          onClose={() => setShowDiagramModal(false)}
+          questionText={currentQuestion.text}
+          imageUrl={currentQuestion.imageUrl}
+        />
+      )}
+
+      {/* Passage Popup Modal */}
+      {currentQuestion && (
+        <PassageModal
+          isOpen={showPassageModal}
+          onClose={() => setShowPassageModal(false)}
+          passageText={getQuestionPassage(currentQuestion) || ''}
+          questionText={currentQuestion.text}
+        />
       )}
 
       <style>{`

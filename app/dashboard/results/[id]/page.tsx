@@ -4,15 +4,21 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   ArrowLeft, CheckCircle2, XCircle, Clock, Trophy, Sparkles,
-  ChevronDown, ChevronUp, Loader2, RotateCcw, BookOpen, Target,
+  ChevronDown, ChevronUp, Loader2, RotateCcw, BookOpen, Target, Image as ImageIcon,
 } from 'lucide-react';
 import api from '../../../../lib/api';
+import DiagramModal from '../../../components/DiagramModal';
 
 interface Option        { id: string; text: string; isCorrect?: boolean; }
 interface QuestionDetail {
-  id: string; text: string; type: string; options: Option[];
+  id: string; text: string; passage?: string | null; imageUrl?: string | null; type: string; options: Option[];
   explanation?: string; selectedOptionId: string | null;
   isCorrect: boolean; subjectId: string; topic?: string;
+}
+
+function isDiagramQuestion(text: string, imageUrl?: string | null): boolean {
+  if (imageUrl) return true;
+  return /diagram|figure|illustration|circuit|capacitors?\s+[pq]|capacitance|graph\s+below|shown\s+below/i.test(text);
 }
 interface SubjectScore  {
   subjectId: string; subjectName: string; correctCount: number;
@@ -64,6 +70,33 @@ export default function ResultsPage() {
   const [loading,      setLoading]      = useState(true);
   const [expandedQId,  setExpandedQId]  = useState<string | null>(null);
   const [filterMode,   setFilterMode]   = useState<'ALL' | 'WRONG' | 'CORRECT'>('ALL');
+
+  // AI Correction & Story modal state
+  const [aiExplanations,   setAiExplanations]   = useState<Record<string, any>>({});
+  const [loadingAi,        setLoadingAi]        = useState<Record<string, boolean>>({});
+  const [storyModalText,   setStoryModalText]   = useState<string | null>(null);
+  const [diagramModalData, setDiagramModalData] = useState<{ text: string; imageUrl?: string | null } | null>(null);
+
+  const fetchAiExplanation = async (qId: string, studentAnswerId: string | null) => {
+    setLoadingAi(prev => ({ ...prev, [qId]: true }));
+    try {
+      const res = await api.post('/ai/explain', {
+        questionId: qId,
+        studentAnswerId: studentAnswerId || 'A',
+      });
+      setAiExplanations(prev => ({ ...prev, [qId]: res.data.data.explanation }));
+    } catch {
+      setAiExplanations(prev => ({
+        ...prev,
+        [qId]: {
+          simpleExplanation: 'Could not connect to AI Tutor. Please try again.',
+          detailedExplanation: 'Ensure your server is connected to the internet.',
+        },
+      }));
+    } finally {
+      setLoadingAi(prev => ({ ...prev, [qId]: false }));
+    }
+  };
 
   useEffect(() => {
     if (!attemptId) return;
@@ -280,6 +313,34 @@ export default function ResultsPage() {
                         {statusCfg.badgeLabel}
                       </span>
                       {q.topic && <span style={{ fontSize: 10, color: 'var(--slate-400)', fontWeight: 600 }}>Topic: {q.topic}</span>}
+                      {q.passage && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setStoryModalText(q.passage!); }}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            padding: '4px 11px', borderRadius: 20,
+                            background: '#EFF6FF', border: '1px solid rgba(37,99,235,0.25)',
+                            color: '#2563EB', fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                          }}
+                        >
+                          <BookOpen style={{ width: 12, height: 12 }} /> Read Story / Passage
+                        </button>
+                      )}
+                      {isDiagramQuestion(q.text, q.imageUrl) && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setDiagramModalData({ text: q.text, imageUrl: q.imageUrl }); }}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            padding: '4px 11px', borderRadius: 20,
+                            background: '#F5F3FF', border: '1px solid rgba(124,58,237,0.25)',
+                            color: '#7C3AED', fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                          }}
+                        >
+                          <ImageIcon style={{ width: 12, height: 12 }} /> 🖼️ View Diagram
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div style={{ flexShrink: 0, color: 'var(--slate-400)', marginTop: 4 }}>
@@ -290,6 +351,29 @@ export default function ResultsPage() {
                 {/* Expanded: Options + Explanation */}
                 {isExpanded && (
                   <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${statusCfg.border}`, paddingTop: 14 }}>
+                    {/* Passage preview card */}
+                    {q.passage && (
+                      <div style={{
+                        marginBottom: 14, padding: '14px 16px', borderRadius: 14,
+                        background: '#F8FAFC', border: '1.5px solid var(--blue-200)',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--blue-700)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <BookOpen style={{ width: 13, height: 13 }} /> Reading Story / Passage
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setStoryModalText(q.passage!)}
+                            style={{ fontSize: 11, fontWeight: 800, color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer' }}
+                          >
+                            Expand Story Popup ↗
+                          </button>
+                        </div>
+                        <div style={{ fontSize: 13, color: 'var(--slate-700)', lineHeight: 1.7, whiteSpace: 'pre-line', maxHeight: 150, overflowY: 'auto' }}>
+                          {q.passage}
+                        </div>
+                      </div>
+                    )}
                     <div className="options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
                       {q.options.map((opt) => {
                         const isStudentPick = q.selectedOptionId === opt.id;
@@ -327,17 +411,83 @@ export default function ResultsPage() {
                       })}
                     </div>
 
-                    {q.explanation && (
+                    {/* Interactive Step-by-Step AI Correction Section */}
+                    {aiExplanations[q.id] ? (
                       <div style={{
-                        padding: '14px 16px', borderRadius: 14,
-                        background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)',
-                        border: '1px solid rgba(124,58,237,0.12)',
+                        marginTop: 14, padding: '18px 20px', borderRadius: 16,
+                        background: 'linear-gradient(135deg, #F5F3FF 0%, #EFF6FF 100%)',
+                        border: '1.5px solid rgba(124,58,237,0.25)',
+                        boxShadow: '0 4px 16px rgba(124,58,237,0.06)',
+                        display: 'flex', flexDirection: 'column', gap: 12,
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
-                          <Sparkles style={{ width: 13, height: 13, color: '#7C3AED' }} />
-                          <span style={{ fontSize: 11, fontWeight: 800, color: '#5B21B6' }}>AI Explanation</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Sparkles style={{ width: 15, height: 15, color: '#7C3AED' }} />
+                            <span style={{ fontSize: 13, fontWeight: 900, color: '#5B21B6', letterSpacing: '-0.01em' }}>
+                              Step-by-Step AI Correction & Explanation
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setAiExplanations(prev => { const copy = { ...prev }; delete copy[q.id]; return copy; })}
+                            style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', background: 'none', border: 'none', cursor: 'pointer' }}
+                          >
+                            Hide AI Breakdown
+                          </button>
                         </div>
-                        <p style={{ fontSize: 12, color: 'var(--slate-700)', lineHeight: 1.7, margin: 0 }}>{q.explanation}</p>
+
+                        {aiExplanations[q.id].simpleExplanation && (
+                          <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(124,58,237,0.1)', fontSize: 12, fontWeight: 700, color: '#4C1D95' }}>
+                            💡 <strong>Core Concept:</strong> {aiExplanations[q.id].simpleExplanation}
+                          </div>
+                        )}
+
+                        {aiExplanations[q.id].detailedExplanation && (
+                          <div>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: '#6D28D9', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+                              🔍 Step-by-Step Solution:
+                            </div>
+                            <p style={{ fontSize: 13, color: 'var(--slate-700)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-line' }}>
+                              {aiExplanations[q.id].detailedExplanation}
+                            </p>
+                          </div>
+                        )}
+
+                        {aiExplanations[q.id].examTip && (
+                          <div style={{ padding: '10px 14px', borderRadius: 10, background: '#ECFDF5', border: '1px solid rgba(5,150,105,0.2)', fontSize: 12, color: '#065F46' }}>
+                            🎯 <strong>Exam Tip:</strong> {aiExplanations[q.id].examTip}
+                          </div>
+                        )}
+
+                        {aiExplanations[q.id].memoryTrick && aiExplanations[q.id].memoryTrick !== 'N/A' && (
+                          <div style={{ padding: '10px 14px', borderRadius: 10, background: '#FFFBEB', border: '1px solid rgba(217,119,6,0.2)', fontSize: 12, color: '#92400E' }}>
+                            🧠 <strong>Memory Trick:</strong> {aiExplanations[q.id].memoryTrick}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                        {q.explanation && !q.explanation.toLowerCase().includes('past examination question') && (
+                          <div style={{ fontSize: 12, color: 'var(--slate-600)', fontStyle: 'italic' }}>
+                            {q.explanation}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => fetchAiExplanation(q.id, q.selectedOptionId)}
+                          disabled={loadingAi[q.id]}
+                          style={{
+                            marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 8,
+                            padding: '8px 16px', borderRadius: 12, border: 'none',
+                            background: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+                            color: 'white', fontSize: 12, fontWeight: 800, cursor: loadingAi[q.id] ? 'not-allowed' : 'pointer',
+                            boxShadow: '0 4px 14px rgba(124,58,237,0.25)', transition: 'all 0.2s',
+                          }}
+                        >
+                          {loadingAi[q.id] ? (
+                            <><Loader2 style={{ width: 14, height: 14, animation: 'spin 0.7s linear infinite' }} /> AI Tutor Generating...</>
+                          ) : (
+                            <><Sparkles style={{ width: 14, height: 14 }} /> Get Step-by-Step AI Correction</>
+                          )}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -377,6 +527,62 @@ export default function ResultsPage() {
           </button>
         </div>
       </div>
+
+      {/* ── Story Modal Popup ─────────────────────────────────── */}
+      {storyModalText && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) setStoryModalText(null); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(15,23,42,0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+        >
+          <div style={{
+            background: 'white', borderRadius: 24, padding: 28,
+            maxWidth: 680, width: '100%', maxHeight: '85vh',
+            display: 'flex', flexDirection: 'column', gap: 16,
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            border: '1px solid rgba(0,0,0,0.1)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <BookOpen style={{ width: 20, height: 20, color: 'var(--blue-600)' }} />
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--slate-900)' }}>Reading Story / Passage</span>
+              </div>
+              <button
+                onClick={() => setStoryModalText(null)}
+                style={{ background: 'var(--slate-100)', border: 'none', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--slate-500)', fontSize: 14, fontWeight: 700 }}
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{
+              flex: 1, overflowY: 'auto', padding: 20,
+              background: 'var(--slate-50)', borderRadius: 16,
+              border: '1px solid var(--slate-200)',
+              fontSize: 14, color: 'var(--slate-800)', lineHeight: 1.8, whiteSpace: 'pre-line',
+            }}>
+              {storyModalText}
+            </div>
+            <button
+              onClick={() => setStoryModalText(null)}
+              style={{ height: 44, background: 'var(--blue-600)', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: 'pointer' }}
+            >
+              Close Story
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Diagram Modal */}
+      <DiagramModal
+        isOpen={!!diagramModalData}
+        onClose={() => setDiagramModalData(null)}
+        questionText={diagramModalData?.text || ''}
+        imageUrl={diagramModalData?.imageUrl}
+      />
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }

@@ -11,6 +11,20 @@ interface Subject {
   _count?: { questions: number };
 }
 
+interface TestPackage {
+  id: string;
+  title: string;
+  price: number;
+  duration: number;
+  difficulty: string;
+  isPublished: boolean;
+  isPurchased: boolean;
+  totalQuestions: number;
+  combination?: { name: string };
+  startTime?: string;
+  endTime?: string;
+}
+
 const SUBJECT_ACCENTS: Record<string, { color: string; bg: string; icon: string }> = {
   Mathematics:  { color: '#2563EB', bg: 'rgba(37,99,235,0.08)',   icon: '∑' },
   Physics:      { color: '#7C3AED', bg: 'rgba(124,58,237,0.08)',  icon: '⚛' },
@@ -155,11 +169,22 @@ export default function TestsPage() {
   const [startingExam, setStartingExam] = useState(false);
   const [examError, setExamError] = useState('');
 
+  // Scheduled test packages
+  const [packages, setPackages] = useState<TestPackage[]>([]);
+  const [loadingPackages, setLoadingPackages] = useState(true);
+  const [startingPackage, setStartingPackage] = useState<string | null>(null);
+  const [packageError, setPackageError] = useState('');
+
   useEffect(() => {
     api.get('/subjects')
       .then((res) => setSubjects(res.data.data.subjects || []))
       .catch((err) => console.error('Failed to load subjects:', err))
       .finally(() => setLoadingSubjects(false));
+
+    api.get('/tests')
+      .then((res) => setPackages(res.data.data.tests || []))
+      .catch(() => {})
+      .finally(() => setLoadingPackages(false));
   }, []);
 
   const toggleSubject = (id: string) => {
@@ -196,6 +221,18 @@ export default function TestsPage() {
     setSelectedSubjectIds([subId]);
     setExamError('');
     setShowModal(true);
+  };
+
+  const handleStartPackage = async (testId: string) => {
+    setStartingPackage(testId);
+    setPackageError('');
+    try {
+      const res = await api.post('/attempts/start', { testId });
+      router.push(`/exam?attemptId=${res.data.data.attemptId}`);
+    } catch (err: any) {
+      setPackageError(err.response?.data?.message || 'Failed to start this test. Please try again.');
+      setStartingPackage(null);
+    }
   };
 
   return (
@@ -291,6 +328,105 @@ export default function TestsPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Scheduled Test Packages ───────────────────────── */}
+      {(loadingPackages || packages.length > 0) && (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.02em' }}>
+                Scheduled Test Packages
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 3, fontWeight: 500 }}>
+                Admin-curated exams — pay once, attempt anytime during the window
+              </div>
+            </div>
+          </div>
+
+          {packageError && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, background: '#FEF2F2', border: '1px solid rgba(220,38,38,0.2)', fontSize: 12, fontWeight: 600, color: '#DC2626', marginBottom: 16 }}>
+              <AlertCircle style={{ width: 15, height: 15, flexShrink: 0 }} />{packageError}
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="tests-grid">
+            {loadingPackages
+              ? [1, 2, 3].map(n => (
+                  <div key={n} style={{ height: 220, borderRadius: 20, border: '1.5px solid var(--slate-200)', background: 'var(--slate-100)' }} />
+                ))
+              : packages.map(pkg => {
+                  const now = new Date();
+                  const starts = pkg.startTime ? new Date(pkg.startTime) : null;
+                  const ends = pkg.endTime ? new Date(pkg.endTime) : null;
+                  const notStarted = starts && now < starts;
+                  const closed = ends && now > ends;
+                  const isFree = pkg.price === 0;
+                  const canStart = !notStarted && !closed && (pkg.isPurchased || isFree);
+                  return (
+                    <div key={pkg.id} style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: 22, display: 'flex', flexDirection: 'column', gap: 14, transition: 'box-shadow 0.2s' }}>
+                      {/* Header */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--slate-900)', lineHeight: 1.3 }}>{pkg.title}</div>
+                        <div style={{ flexShrink: 0, fontSize: 12, fontWeight: 800, color: isFree ? '#059669' : '#7C3AED', background: isFree ? '#ECFDF5' : '#F5F3FF', padding: '3px 10px', borderRadius: 20, border: `1px solid ${isFree ? 'rgba(5,150,105,0.2)' : 'rgba(124,58,237,0.2)'}` }}>
+                          {isFree ? 'Free' : `₦${pkg.price.toLocaleString()}`}
+                        </div>
+                      </div>
+
+                      {/* Meta */}
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--slate-500)', background: 'var(--slate-100)', padding: '2px 8px', borderRadius: 6 }}>
+                          {pkg.combination?.name || 'General'}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--slate-500)', background: 'var(--slate-100)', padding: '2px 8px', borderRadius: 6 }}>
+                          <Clock style={{ width: 10, height: 10, display: 'inline', marginRight: 3 }} />{pkg.duration} mins
+                        </span>
+                      </div>
+
+                      {/* Schedule window */}
+                      {(starts || ends) && (
+                        <div style={{ padding: '8px 12px', borderRadius: 10, background: notStarted ? '#FFF7ED' : closed ? '#FEF2F2' : '#ECFDF5', border: `1px solid ${notStarted ? 'rgba(234,179,8,0.2)' : closed ? 'rgba(220,38,38,0.2)' : 'rgba(5,150,105,0.2)'}` }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: notStarted ? '#D97706' : closed ? '#DC2626' : '#059669', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+                            {notStarted ? '⏳ Not Started Yet' : closed ? '🔴 Test Closed' : '🟢 Open Now'}
+                          </div>
+                          {starts && <div style={{ fontSize: 10, color: 'var(--slate-500)' }}>Opens: {starts.toLocaleString('en-NG', { timeZone: 'Africa/Lagos', dateStyle: 'medium', timeStyle: 'short' })}</div>}
+                          {ends && <div style={{ fontSize: 10, color: 'var(--slate-500)' }}>Closes: {ends.toLocaleString('en-NG', { timeZone: 'Africa/Lagos', dateStyle: 'medium', timeStyle: 'short' })}</div>}
+                        </div>
+                      )}
+
+                      {/* Action */}
+                      <button
+                        onClick={() => canStart ? handleStartPackage(pkg.id) : undefined}
+                        disabled={!canStart || startingPackage === pkg.id}
+                        style={{
+                          marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          height: 42, borderRadius: 11, border: 'none',
+                          cursor: canStart && startingPackage !== pkg.id ? 'pointer' : 'not-allowed',
+                          background: notStarted || closed ? 'var(--slate-100)' : canStart ? 'linear-gradient(135deg,#2563EB,#7C3AED)' : '#EFF6FF',
+                          color: notStarted || closed ? 'var(--slate-400)' : canStart ? 'white' : '#2563EB',
+                          fontSize: 12, fontWeight: 800,
+                          boxShadow: canStart ? '0 4px 14px rgba(37,99,235,0.25)' : 'none',
+                          transition: 'all 0.18s',
+                          opacity: startingPackage === pkg.id ? 0.7 : 1,
+                        }}
+                      >
+                        {startingPackage === pkg.id ? (
+                          <><Loader2 style={{ width: 15, height: 15, animation: 'spin 0.7s linear infinite' }} /> Starting…</>
+                        ) : notStarted ? (
+                          '⏳ Test Not Open Yet'
+                        ) : closed ? (
+                          '🔴 Test Closed'
+                        ) : canStart ? (
+                          <><Play style={{ width: 13, height: 13, fill: 'white' }} /> Start Exam</>
+                        ) : (
+                          `Purchase — ₦${pkg.price.toLocaleString()}`
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+          </div>
+        </div>
+      )}
 
       {/* ── Available Subjects Grid ──────────────────────────── */}
       <div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Edit } from 'lucide-react';
+import { Plus, Search, Edit, Clock, Calendar } from 'lucide-react';
 import api from '../../../lib/api';
 
 interface Test {
@@ -16,6 +16,8 @@ interface Test {
   totalPurchases: number;
   combination?: { name: string };
   createdAt: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 export default function AdminTests() {
@@ -81,6 +83,37 @@ export default function AdminTests() {
     setTests((prev) =>
       prev.map((t) => (t.id === id ? { ...t, isPublished: !t.isPublished } : t))
     );
+  };
+
+  const [scheduleEdit, setScheduleEdit] = useState<string | null>(null);
+  const [scheduleForm, setScheduleForm] = useState<{ startTime: string; endTime: string; price: string }>({ startTime: '', endTime: '', price: '' });
+
+  const openSchedule = (test: Test) => {
+    setScheduleEdit(test.id);
+    setScheduleForm({
+      startTime: test.startTime ? test.startTime.slice(0, 16) : '',
+      endTime: test.endTime ? test.endTime.slice(0, 16) : '',
+      price: String(test.price),
+    });
+  };
+
+  const saveSchedule = async (id: string) => {
+    try {
+      const payload: any = {
+        price: Number(scheduleForm.price) || 0,
+        startTime: scheduleForm.startTime || null,
+        endTime: scheduleForm.endTime || null,
+      };
+      await api.put(`/tests/${id}`, payload);
+      setTests((prev) =>
+        prev.map((t) =>
+          t.id === id
+            ? { ...t, price: payload.price, startTime: payload.startTime, endTime: payload.endTime }
+            : t
+        )
+      );
+      setScheduleEdit(null);
+    } catch {}
   };
 
   const filtered = tests.filter(
@@ -170,13 +203,14 @@ export default function AdminTests() {
               <th style={{ padding: '16px 24px' }}>Questions</th>
               <th style={{ padding: '16px 24px' }}>Duration</th>
               <th style={{ padding: '16px 24px' }}>Price</th>
+              <th style={{ padding: '16px 24px' }}>Schedule</th>
               <th style={{ padding: '16px 24px', textAlign: 'center' }}>Status</th>
               <th style={{ padding: '16px 24px', textAlign: 'right' }}>Action</th>
             </tr>
           </thead>
           <tbody style={{ fontSize: 13 }}>
             {filtered.map((test, i) => (
-              <tr key={test.id} style={{ borderBottom: i === filtered.length - 1 ? 'none' : '1px solid var(--slate-100)' }}>
+              <tr key={test.id} style={{ borderBottom: i === filtered.length - 1 ? 'none' : '1px solid var(--slate-100)', verticalAlign: 'top' }}>
                 <td style={{ padding: '16px 24px' }}>
                   <div style={{ fontWeight: 700, color: 'var(--slate-900)' }}>{test.title}</div>
                   <div style={{ fontSize: 11, color: 'var(--slate-400)', marginTop: 2 }}>
@@ -190,7 +224,44 @@ export default function AdminTests() {
                 </td>
                 <td style={{ padding: '16px 24px', fontWeight: 600, color: 'var(--slate-700)' }}>{test.totalQuestions} Qs</td>
                 <td style={{ padding: '16px 24px', color: 'var(--slate-500)' }}>{test.duration} Mins</td>
-                <td style={{ padding: '16px 24px', fontWeight: 800, color: 'var(--slate-900)' }}>₦{test.price.toLocaleString()}</td>
+                <td style={{ padding: '16px 24px' }}>
+                  {scheduleEdit === test.id ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 220 }}>
+                      <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--slate-500)', textTransform: 'uppercase' }}>Price (₦)</label>
+                      <input type="number" value={scheduleForm.price} onChange={e => setScheduleForm(f => ({ ...f, price: e.target.value }))}
+                        style={{ height: 32, padding: '0 8px', borderRadius: 8, border: '1.5px solid var(--slate-200)', fontSize: 12, fontWeight: 600, outline: 'none' }} />
+                      <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--slate-500)', textTransform: 'uppercase', marginTop: 4 }}>
+                        <Calendar style={{ width: 11, height: 11, display: 'inline', marginRight: 4 }} />Start Time
+                      </label>
+                      <input type="datetime-local" value={scheduleForm.startTime} onChange={e => setScheduleForm(f => ({ ...f, startTime: e.target.value }))}
+                        style={{ height: 32, padding: '0 8px', borderRadius: 8, border: '1.5px solid var(--slate-200)', fontSize: 12, outline: 'none' }} />
+                      <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--slate-500)', textTransform: 'uppercase' }}>
+                        <Clock style={{ width: 11, height: 11, display: 'inline', marginRight: 4 }} />End Time
+                      </label>
+                      <input type="datetime-local" value={scheduleForm.endTime} onChange={e => setScheduleForm(f => ({ ...f, endTime: e.target.value }))}
+                        style={{ height: 32, padding: '0 8px', borderRadius: 8, border: '1.5px solid var(--slate-200)', fontSize: 12, outline: 'none' }} />
+                      <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                        <button onClick={() => saveSchedule(test.id)} style={{ flex: 1, height: 30, background: 'var(--blue-600)', color: 'white', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Save</button>
+                        <button onClick={() => setScheduleEdit(null)} style={{ flex: 1, height: 30, background: 'var(--slate-100)', color: 'var(--slate-600)', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ fontWeight: 800, color: test.price === 0 ? '#059669' : 'var(--slate-900)', fontSize: 13 }}>
+                        {test.price === 0 ? 'Free' : `₦${test.price.toLocaleString()}`}
+                      </div>
+                      {(test.startTime || test.endTime) && (
+                        <div style={{ fontSize: 10, color: 'var(--slate-400)', marginTop: 3, lineHeight: 1.6 }}>
+                          {test.startTime && <div>🟢 {new Date(test.startTime).toLocaleString('en-NG', { timeZone: 'Africa/Lagos', dateStyle: 'short', timeStyle: 'short' })}</div>}
+                          {test.endTime && <div>🔴 {new Date(test.endTime).toLocaleString('en-NG', { timeZone: 'Africa/Lagos', dateStyle: 'short', timeStyle: 'short' })}</div>}
+                        </div>
+                      )}
+                      <button onClick={() => openSchedule(test)} style={{ marginTop: 6, fontSize: 10, fontWeight: 700, color: 'var(--blue-600)', background: '#EFF6FF', border: 'none', borderRadius: 6, padding: '3px 8px', cursor: 'pointer' }}>
+                        ✏️ Set Price & Schedule
+                      </button>
+                    </div>
+                  )}
+                </td>
                 <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                   <button
                     onClick={() => togglePublish(test.id, test.isPublished)}

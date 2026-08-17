@@ -102,6 +102,8 @@ export default function PDFUploadStudioPage() {
 
   const [numQuestions, setNumQuestions] = useState(10);
   const [difficulty, setDifficulty] = useState('MEDIUM');
+  const [isMultiSubject, setIsMultiSubject] = useState(false);
+  const [extractSubjectIds, setExtractSubjectIds] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null);
 
@@ -252,6 +254,8 @@ export default function PDFUploadStudioPage() {
       const res = await api.post(`/pdfs/${pdfId}/process`, {
         numQuestions,
         difficulty,
+        isMultiSubject,
+        extractSubjectIds,
       });
 
       const extracted: GeneratedQuestion[] = res.data.data.questions || [];
@@ -515,6 +519,70 @@ export default function PDFUploadStudioPage() {
                 </select>
               </div>
             </div>
+
+            {/* Multi-Subject Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: 12 }}>
+              <input
+                id="multi-subject-toggle"
+                type="checkbox"
+                checked={isMultiSubject}
+                onChange={(e) => setIsMultiSubject(e.target.checked)}
+                style={{ width: 16, height: 16, cursor: 'pointer' }}
+              />
+              <label htmlFor="multi-subject-toggle" style={{ fontSize: 12, fontWeight: 600, color: 'var(--slate-700)', cursor: 'pointer' }}>
+                Multi-subject PDF (AI will auto-classify questions to respective subjects)
+              </label>
+            </div>
+
+            {/* Subject Selector Checklist */}
+            {isMultiSubject && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 16, background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Select Subjects to Extract
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
+                  {subjects.map((sub) => {
+                    const isChecked = extractSubjectIds.includes(sub.id);
+                    return (
+                      <label
+                        key={sub.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: 'var(--slate-700)',
+                          cursor: 'pointer',
+                          padding: '6px 10px',
+                          background: 'white',
+                          borderRadius: 8,
+                          border: '1px solid var(--slate-200)',
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setExtractSubjectIds((prev) => [...prev, sub.id]);
+                            } else {
+                              setExtractSubjectIds((prev) => prev.filter((id) => id !== sub.id));
+                            }
+                          }}
+                          style={{ width: 14, height: 14, cursor: 'pointer' }}
+                        />
+                        {SUBJECT_EMOJIS[sub.name] || '📘'} {sub.name}
+                      </label>
+                    );
+                  })}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--slate-400)', marginTop: 4 }}>
+                  * Leave all unchecked to extract into any available subject.
+                </div>
+              </div>
+            )}
 
             {/* Document Dropzone */}
             <input ref={inputRef} type="file" accept=".pdf,.docx,.doc,.txt" multiple onChange={(e) => e.target.files && handleFiles(e.target.files)} style={{ display: 'none' }} />
