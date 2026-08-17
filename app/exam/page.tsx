@@ -110,11 +110,11 @@ function ExamContent() {
   const formatTime = (secs: number) => `${Math.floor(secs / 60).toString().padStart(2, '0')}:${(secs % 60).toString().padStart(2, '0')}`;
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F172A', flexDirection: 'column', gap: 16 }}>
-      <div style={{ width: 44, height: 44, borderRadius: 12, background: '#1E293B', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 style={{ width: 20, height: 20, color: 'white', animation: 'spin 0.7s linear infinite' }} />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF', flexDirection: 'column', gap: 16 }}>
+      <div style={{ width: 44, height: 44, borderRadius: 12, background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 style={{ width: 20, height: 20, color: '#0F172A', animation: 'spin 0.7s linear infinite' }} />
       </div>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8' }}>Loading CBT Examination Engine…</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#64748B' }}>Loading CBT Examination Engine…</div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
@@ -126,22 +126,22 @@ function ExamContent() {
   const timerPct               = (timeLeft / totalDurationSecs) * 100;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0F172A', color: '#F8FAFC', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font, system-ui)' }}>
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', color: '#0F172A', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font, system-ui)' }}>
 
-      {/* ── Top Bar ────────────────────────────────────────── */}
+      {/* ── Header ───────────────────────────────────────── */}
       <header style={{
         height: 60, flexShrink: 0, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', padding: '0 24px',
-        background: '#0F172A',
-        borderBottom: '1px solid #1E293B',
+        background: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
         position: 'sticky', top: 0, zIndex: 50,
       }}>
         {/* Brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#1E293B', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14, color: 'white' }}>G</div>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 15, color: 'white' }}>G</div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }} className="exam-brand">Grit CBT Portal</div>
-            <div style={{ fontSize: 10, color: '#64748B', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>JAMB / WAEC Standard Mode</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em' }} className="exam-brand">Grit CBT Examination Engine</div>
+            <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>JAMB / WAEC Standard Test</div>
           </div>
         </div>
 
@@ -149,12 +149,12 @@ function ExamContent() {
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '6px 16px', borderRadius: 20,
-          background: isUrgent ? '#7F1D1D' : '#1E293B',
-          border: `1px solid ${isUrgent ? '#DC2626' : '#334155'}`,
-          fontSize: 14, fontWeight: 900, letterSpacing: '0.04em',
-          color: isUrgent ? '#FECACA' : '#38BDF8',
+          background: isUrgent ? '#FEF2F2' : '#F1F5F9',
+          border: `1px solid ${isUrgent ? '#DC2626' : '#E2E8F0'}`,
+          fontSize: 14, fontWeight: 900, letterSpacing: '0.03em',
+          color: isUrgent ? '#DC2626' : '#0F172A',
         }}>
-          <Clock style={{ width: 15, height: 15, flexShrink: 0 }} />
+          <Clock style={{ width: 15, height: 15, flexShrink: 0, color: isUrgent ? '#DC2626' : '#475569' }} />
           {formatTime(timeLeft)}
         </div>
 
@@ -163,10 +163,10 @@ function ExamContent() {
           onClick={() => setShowSubmitConfirm(true)}
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            height: 38, padding: '0 18px', borderRadius: 10, border: '1px solid #059669',
-            background: '#059669',
+            height: 38, padding: '0 18px', borderRadius: 10, border: 'none',
+            background: '#0F172A',
             color: 'white', fontSize: 12, fontWeight: 800, cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(5,150,105,0.2)',
+            boxShadow: '0 4px 12px rgba(15,23,42,0.12)',
             transition: 'all 0.15s ease',
           }}
         >
@@ -175,22 +175,22 @@ function ExamContent() {
         </button>
       </header>
 
-      {/* Timer Progress Bar */}
-      <div style={{ height: 2, background: '#1E293B', flexShrink: 0 }}>
+      {/* Timer Progress Line */}
+      <div style={{ height: 2, background: '#E2E8F0', flexShrink: 0 }}>
         <div style={{
           height: '100%',
-          background: isUrgent ? '#DC2626' : '#38BDF8',
+          background: isUrgent ? '#DC2626' : '#0F172A',
           width: `${timerPct}%`, transition: 'width 1s linear',
         }} />
       </div>
 
       {/* ── Subject Tabs ───────────────────────────────────── */}
       <div style={{
-        background: '#0F172A', borderBottom: '1px solid #1E293B',
+        background: '#FFFFFF', borderBottom: '1px solid #E2E8F0',
         padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 8, overflowX: 'auto',
         flexShrink: 0,
       }}>
-        <span style={{ fontSize: 10, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0, marginRight: 4 }}>Subjects:</span>
+        <span style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0, marginRight: 4 }}>Subjects:</span>
         {subjects.map((sub) => {
           const isActive    = activeSubjectId === sub.id;
           const subQs       = questions.filter((q) => q.subjectId === sub.id);
@@ -201,9 +201,9 @@ function ExamContent() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '6px 14px', borderRadius: 8, border: '1px solid',
-                borderColor: isActive ? '#38BDF8' : '#1E293B',
-                background: isActive ? '#1E293B' : 'transparent',
-                color: isActive ? '#FFFFFF' : '#94A3B8',
+                borderColor: isActive ? '#0F172A' : '#E2E8F0',
+                background: isActive ? '#0F172A' : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : '#64748B',
                 fontSize: 12, fontWeight: isActive ? 800 : 600, flexShrink: 0, transition: 'all 0.15s ease',
                 cursor: 'pointer',
               }}
@@ -211,8 +211,8 @@ function ExamContent() {
               {sub.name}
               <span style={{
                 fontSize: 10, padding: '2px 6px', borderRadius: 4, fontWeight: 700,
-                background: isActive ? '#38BDF8' : '#334155',
-                color: isActive ? '#0F172A' : '#94A3B8',
+                background: isActive ? 'rgba(255,255,255,0.2)' : '#F1F5F9',
+                color: isActive ? '#FFFFFF' : '#64748B',
               }}>{subAnswered}/{subQs.length}</span>
             </button>
           );
@@ -224,8 +224,8 @@ function ExamContent() {
           className="exam-qnav-btn"
           style={{
             display: 'none', marginLeft: 'auto', padding: '6px 12px', borderRadius: 8,
-            background: '#1E293B', border: '1px solid #334155',
-            color: '#94A3B8', fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
+            background: '#F1F5F9', border: '1px solid #E2E8F0',
+            color: '#0F172A', fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
           }}
         >
           <BookOpen style={{ width: 13, height: 13, display: 'inline', marginRight: 4 }} />
@@ -233,23 +233,23 @@ function ExamContent() {
         </button>
       </div>
 
-      {/* ── Main Canvas ────────────────────────────────────── */}
+      {/* ── Main Workspace ──────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-        {/* Question Workspace */}
+        {/* Question Area */}
         <main style={{ flex: 1, overflowY: 'auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 840, margin: '0 auto', width: '100%' }}>
           {currentQuestion ? (
             <>
-              {/* Question Bar */}
+              {/* Question Control Line */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
-                    width: 36, height: 36, borderRadius: 10, background: '#1E293B',
-                    border: '1px solid #334155', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#38BDF8', flexShrink: 0,
+                    width: 36, height: 36, borderRadius: 10, background: '#0F172A',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 14, fontWeight: 900, color: 'white', flexShrink: 0,
                   }}>{currentQIndex + 1}</div>
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       {currentQuestion.subjectName || 'Question'}
                     </div>
                     <div style={{ fontSize: 11, color: '#64748B', marginTop: 1, fontWeight: 500 }}>
@@ -266,9 +266,9 @@ function ExamContent() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 6,
                     padding: '6px 14px', borderRadius: 8, border: '1px solid',
-                    borderColor: flagged.has(currentQuestion.id) ? '#F59E0B' : '#1E293B',
-                    background: flagged.has(currentQuestion.id) ? '#78350F' : '#1E293B',
-                    color: flagged.has(currentQuestion.id) ? '#FDE68A' : '#94A3B8',
+                    borderColor: flagged.has(currentQuestion.id) ? '#F59E0B' : '#E2E8F0',
+                    background: flagged.has(currentQuestion.id) ? '#FFFBEB' : '#FFFFFF',
+                    color: flagged.has(currentQuestion.id) ? '#B45309' : '#64748B',
                     fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s ease',
                   }}
                 >
@@ -280,23 +280,24 @@ function ExamContent() {
               {/* Passage Card */}
               {currentQuestion.passage && (
                 <div style={{
-                  background: '#1E293B',
+                  background: '#FFFFFF',
                   borderRadius: 16,
-                  border: '1px solid #334155',
+                  border: '1px solid #E2E8F0',
                   padding: '20px 24px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <BookOpen style={{ width: 16, height: 16, color: '#38BDF8' }} />
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      <BookOpen style={{ width: 16, height: 16, color: '#0F172A' }} />
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                         Reading Passage
                       </span>
                     </div>
                     <button
                       onClick={() => setShowPassage(v => !v)}
                       style={{
-                        padding: '4px 10px', borderRadius: 6, border: '1px solid #334155',
-                        background: '#0F172A', color: '#94A3B8',
+                        padding: '4px 10px', borderRadius: 6, border: '1px solid #E2E8F0',
+                        background: '#F8FAFC', color: '#64748B',
                         fontSize: 11, fontWeight: 700, cursor: 'pointer',
                       }}
                     >
@@ -307,10 +308,10 @@ function ExamContent() {
                   {showPassage && (
                     <div style={{
                       maxHeight: 260, overflowY: 'auto', paddingRight: 8,
-                      fontSize: 13, fontWeight: 400, color: '#E2E8F0',
+                      fontSize: 13, fontWeight: 400, color: '#334155',
                       lineHeight: 1.75, whiteSpace: 'pre-line',
-                      background: '#0F172A', padding: '16px', borderRadius: 10,
-                      border: '1px solid #334155',
+                      background: '#F8FAFC', padding: '16px', borderRadius: 10,
+                      border: '1px solid #E2E8F0',
                     }}>
                       {currentQuestion.passage}
                     </div>
@@ -318,25 +319,26 @@ function ExamContent() {
                 </div>
               )}
 
-              {/* Question Text Box */}
+              {/* Question Body Card */}
               <div style={{
-                background: '#1E293B', borderRadius: 16,
-                border: '1px solid #334155',
+                background: '#FFFFFF', borderRadius: 16,
+                border: '1px solid #E2E8F0',
                 padding: '26px 28px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
               }}>
-                <p style={{ fontSize: 16, fontWeight: 600, color: '#F8FAFC', lineHeight: 1.7, margin: 0 }}>
+                <p style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', lineHeight: 1.7, margin: 0 }}>
                   {currentQuestion.text}
                 </p>
 
-                {/* Additional Modal Triggers */}
+                {/* Additional Buttons */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 18 }}>
                   {getQuestionPassage(currentQuestion) && (
                     <button
                       onClick={() => setShowPassageModal(true)}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8,
-                        padding: '8px 16px', borderRadius: 8, border: '1px solid #38BDF8',
-                        background: '#1E293B', color: '#38BDF8', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                        padding: '8px 16px', borderRadius: 8, border: '1px solid #E2E8F0',
+                        background: '#F8FAFC', color: '#0F172A', fontSize: 12, fontWeight: 800, cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
                     >
@@ -349,8 +351,8 @@ function ExamContent() {
                       onClick={() => setShowDiagramModal(true)}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8,
-                        padding: '8px 16px', borderRadius: 8, border: '1px solid #38BDF8',
-                        background: '#1E293B', color: '#38BDF8', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                        padding: '8px 16px', borderRadius: 8, border: '1px solid #E2E8F0',
+                        background: '#F8FAFC', color: '#0F172A', fontSize: 12, fontWeight: 800, cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
                     >
@@ -360,13 +362,13 @@ function ExamContent() {
                 </div>
 
                 {currentQuestion.topic && (
-                  <div style={{ marginTop: 14, fontSize: 11, color: '#64748B', fontWeight: 600 }}>
+                  <div style={{ marginTop: 14, fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>
                     Topic: {currentQuestion.topic}
                   </div>
                 )}
               </div>
 
-              {/* Multiple Choice Options */}
+              {/* Multiple Choice Option Cards */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {currentQuestion.options.map((opt, i) => {
                   const isSelected = answers[currentQuestion.id] === opt.id;
@@ -377,24 +379,25 @@ function ExamContent() {
                       style={{
                         display: 'flex', alignItems: 'flex-start', gap: 14,
                         padding: '16px 20px', borderRadius: 12, border: '1px solid',
-                        borderColor: isSelected ? '#38BDF8' : '#334155',
-                        background: isSelected ? '#1E293B' : '#0F172A',
+                        borderColor: isSelected ? '#0F172A' : '#E2E8F0',
+                        background: isSelected ? '#F1F5F9' : '#FFFFFF',
                         cursor: 'pointer', textAlign: 'left', width: '100%',
                         transition: 'all 0.15s ease',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
                       }}
                     >
                       <div style={{
                         width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                        background: isSelected ? '#38BDF8' : '#1E293B',
-                        border: `1px solid ${isSelected ? '#38BDF8' : '#334155'}`,
+                        background: isSelected ? '#0F172A' : '#F8FAFC',
+                        border: `1px solid ${isSelected ? '#0F172A' : '#E2E8F0'}`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 13, fontWeight: 900,
-                        color: isSelected ? '#0F172A' : '#94A3B8',
+                        color: isSelected ? 'white' : '#64748B',
                         transition: 'all 0.15s ease',
                       }}>{ALPHA[i] || opt.id}</div>
                       <span style={{
-                        fontSize: 14, fontWeight: 500, lineHeight: 1.6, paddingTop: 4,
-                        color: isSelected ? '#F8FAFC' : '#CBD5E1',
+                        fontSize: 14, fontWeight: isSelected ? 700 : 500, lineHeight: 1.6, paddingTop: 4,
+                        color: '#0F172A',
                       }}>{opt.text}</span>
                     </button>
                   );
@@ -404,15 +407,15 @@ function ExamContent() {
               {/* Navigation Bar */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                paddingTop: 24, borderTop: '1px solid #1E293B', gap: 12, flexWrap: 'wrap',
+                paddingTop: 24, borderTop: '1px solid #E2E8F0', gap: 12, flexWrap: 'wrap',
               }}>
                 <button
                   onClick={() => setCurrentQIndex((q) => Math.max(0, q - 1))}
                   disabled={currentQIndex === 0}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '10px 18px', borderRadius: 8, border: '1px solid #334155',
-                    background: '#1E293B', color: '#F8FAFC',
+                    padding: '10px 18px', borderRadius: 8, border: '1px solid #E2E8F0',
+                    background: '#FFFFFF', color: '#0F172A',
                     fontSize: 12, fontWeight: 700, cursor: currentQIndex === 0 ? 'not-allowed' : 'pointer',
                     opacity: currentQIndex === 0 ? 0.35 : 1, transition: 'all 0.15s ease',
                   }}
@@ -435,9 +438,9 @@ function ExamContent() {
                         style={{
                           display: 'flex', alignItems: 'center', gap: 8,
                           padding: '10px 20px', borderRadius: 8, border: 'none',
-                          background: '#FFFFFF', color: '#0F172A',
+                          background: '#0F172A', color: 'white',
                           fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(255,255,255,0.1)', transition: 'all 0.15s ease',
+                          boxShadow: '0 4px 12px rgba(15,23,42,0.15)', transition: 'all 0.15s ease',
                         }}
                       >
                         Next Question <ChevronRight style={{ width: 16, height: 16 }} />
@@ -453,9 +456,9 @@ function ExamContent() {
                         style={{
                           display: 'flex', alignItems: 'center', gap: 8,
                           padding: '10px 20px', borderRadius: 8, border: 'none',
-                          background: '#FFFFFF', color: '#0F172A',
+                          background: '#0F172A', color: 'white',
                           fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(255,255,255,0.1)', transition: 'all 0.15s ease',
+                          boxShadow: '0 4px 12px rgba(15,23,42,0.15)', transition: 'all 0.15s ease',
                         }}
                       >
                         Next Subject: {nextSubject.name} <ChevronRight style={{ width: 16, height: 16 }} />
@@ -470,7 +473,7 @@ function ExamContent() {
                           padding: '10px 20px', borderRadius: 8, border: 'none',
                           background: '#059669', color: 'white',
                           fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(5,150,105,0.3)', transition: 'all 0.15s ease',
+                          boxShadow: '0 4px 12px rgba(5,150,105,0.2)', transition: 'all 0.15s ease',
                         }}
                       >
                         <CheckCircle2 style={{ width: 16, height: 16 }} /> Submit Exam Now →
@@ -481,7 +484,7 @@ function ExamContent() {
               </div>
             </>
           ) : (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#64748B', fontSize: 14 }}>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#94A3B8', fontSize: 14 }}>
               Select a subject tab above to display questions
             </div>
           )}
@@ -490,8 +493,8 @@ function ExamContent() {
         {/* ── Question Grid Sidebar ────────────────────────── */}
         <aside className="exam-sidebar" style={{
           width: 240, flexShrink: 0, overflowY: 'auto', padding: '24px 20px',
-          borderLeft: '1px solid #1E293B',
-          background: '#0F172A',
+          borderLeft: '1px solid #E2E8F0',
+          background: '#FFFFFF',
         }}>
           <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>
             Question Grid
@@ -500,14 +503,14 @@ function ExamContent() {
           {/* Legend */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
             {[
-              { color: '#38BDF8', label: 'Current' },
+              { color: '#0F172A', label: 'Current' },
               { color: '#059669', label: 'Answered' },
-              { color: '#F59E0B', label: 'Flagged' },
-              { color: '#1E293B', label: 'Unanswered' },
+              { color: '#D97706', label: 'Flagged' },
+              { color: '#F1F5F9', label: 'Unanswered' },
             ].map(l => (
               <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: l.color }} />
-                <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600 }}>{l.label}</span>
+                <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>{l.label}</span>
               </div>
             ))}
           </div>
@@ -516,9 +519,9 @@ function ExamContent() {
             {activeSubjectQuestions.map((q, i) => (
               <button key={q.id} onClick={() => setCurrentQIndex(i)} style={{
                 width: '100%', aspectRatio: '1', borderRadius: 6, border: '1px solid',
-                borderColor: i === currentQIndex ? '#38BDF8' : answers[q.id] ? '#059669' : flagged.has(q.id) ? '#F59E0B' : '#334155',
-                background: i === currentQIndex ? '#38BDF8' : answers[q.id] ? '#059669' : flagged.has(q.id) ? '#78350F' : '#1E293B',
-                color: i === currentQIndex ? '#0F172A' : 'white',
+                borderColor: i === currentQIndex ? '#0F172A' : answers[q.id] ? '#059669' : flagged.has(q.id) ? '#D97706' : '#E2E8F0',
+                background: i === currentQIndex ? '#0F172A' : answers[q.id] ? '#059669' : flagged.has(q.id) ? '#FFFBEB' : '#F8FAFC',
+                color: i === currentQIndex || answers[q.id] ? 'white' : flagged.has(q.id) ? '#B45309' : '#475569',
                 fontSize: 11, fontWeight: 900, cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}>{i + 1}</button>
@@ -526,12 +529,12 @@ function ExamContent() {
           </div>
 
           {/* Overall Progress Box */}
-          <div style={{ marginTop: 24, padding: '16px', borderRadius: 12, background: '#1E293B', border: '1px solid #334155' }}>
+          <div style={{ marginTop: 24, padding: '16px', borderRadius: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
             <div style={{ fontSize: 10, color: '#64748B', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Exam Progress</div>
-            <div style={{ fontSize: 24, fontWeight: 900, color: 'white', lineHeight: 1 }}>{totalAnswered}<span style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>/{questions.length}</span></div>
-            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Questions answered</div>
-            <div style={{ height: 4, background: '#0F172A', borderRadius: 100, marginTop: 12, overflow: 'hidden' }}>
-              <div style={{ height: '100%', background: '#38BDF8', borderRadius: 100, width: `${questions.length ? (totalAnswered / questions.length) * 100 : 0}%`, transition: 'width 0.4s ease' }} />
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#0F172A', lineHeight: 1 }}>{totalAnswered}<span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>/{questions.length}</span></div>
+            <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Questions answered</div>
+            <div style={{ height: 4, background: '#E2E8F0', borderRadius: 100, marginTop: 12, overflow: 'hidden' }}>
+              <div style={{ height: '100%', background: '#0F172A', borderRadius: 100, width: `${questions.length ? (totalAnswered / questions.length) * 100 : 0}%`, transition: 'width 0.4s ease' }} />
             </div>
           </div>
         </aside>
@@ -541,32 +544,32 @@ function ExamContent() {
       {showSubmitConfirm && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setShowSubmitConfirm(false); }}
-          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,23,42,0.8)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
         >
           <div style={{
-            background: '#1E293B', borderRadius: 20, padding: '32px 28px',
+            background: '#FFFFFF', borderRadius: 20, padding: '32px 28px',
             width: '100%', maxWidth: 420,
-            border: '1px solid #334155',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.15)',
           }}>
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#064E3B', border: '1px solid #059669', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                <CheckCircle2 style={{ width: 24, height: 24, color: '#34D399' }} />
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#ECFDF5', border: '1px solid rgba(5,150,105,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <CheckCircle2 style={{ width: 24, height: 24, color: '#059669' }} />
               </div>
-              <h3 style={{ fontSize: 18, fontWeight: 900, color: 'white', margin: '0 0 6px' }}>Submit Examination?</h3>
-              <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.5, margin: 0 }}>
-                You have answered <strong style={{ color: 'white' }}>{totalAnswered}</strong> of <strong style={{ color: 'white' }}>{questions.length}</strong> questions.
-                {totalAnswered < questions.length && <span style={{ color: '#FCD34D' }}> {questions.length - totalAnswered} questions remain unanswered.</span>}
+              <h3 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', margin: '0 0 6px' }}>Submit Examination?</h3>
+              <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, margin: 0 }}>
+                You have answered <strong style={{ color: '#0F172A' }}>{totalAnswered}</strong> of <strong style={{ color: '#0F172A' }}>{questions.length}</strong> questions.
+                {totalAnswered < questions.length && <span style={{ color: '#DC2626' }}> {questions.length - totalAnswered} questions remain unanswered.</span>}
               </p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
               {[
-                { label: 'Answered', value: totalAnswered, color: '#34D399' },
-                { label: 'Flagged',  value: flagged.size, color: '#FCD34D' },
-                { label: 'Skipped',  value: questions.length - totalAnswered, color: '#F87171' },
+                { label: 'Answered', value: totalAnswered, color: '#059669' },
+                { label: 'Flagged',  value: flagged.size, color: '#D97706' },
+                { label: 'Skipped',  value: questions.length - totalAnswered, color: '#DC2626' },
               ].map(s => (
-                <div key={s.label} style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 10, background: '#0F172A', border: '1px solid #334155' }}>
+                <div key={s.label} style={{ textAlign: 'center', padding: '12px 8px', borderRadius: 10, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
                   <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.value}</div>
                   <div style={{ fontSize: 10, color: '#64748B', fontWeight: 600, marginTop: 3 }}>{s.label}</div>
                 </div>
@@ -575,15 +578,15 @@ function ExamContent() {
 
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setShowSubmitConfirm(false)} style={{
-                flex: 1, height: 44, borderRadius: 10, border: '1px solid #334155',
-                background: '#0F172A', color: '#94A3B8',
+                flex: 1, height: 44, borderRadius: 10, border: '1px solid #E2E8F0',
+                background: '#FFFFFF', color: '#0F172A',
                 fontSize: 13, fontWeight: 700, cursor: 'pointer',
               }}>Return to Exam</button>
               <button onClick={handleSubmit} disabled={submitting} style={{
                 flex: 1, height: 44, borderRadius: 10, border: 'none',
                 background: '#059669', color: 'white',
                 fontSize: 13, fontWeight: 800, cursor: submitting ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 16px rgba(5,150,105,0.3)', opacity: submitting ? 0.7 : 1,
+                boxShadow: '0 4px 16px rgba(5,150,105,0.2)', opacity: submitting ? 0.7 : 1,
               }}>
                 {submitting ? 'Submitting…' : 'Confirm Submit →'}
               </button>
@@ -630,7 +633,7 @@ function ExamContent() {
 export default function CustomExamPage() {
   return (
     <Suspense fallback={
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 10, color: '#94A3B8', background: '#0F172A' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 10, color: '#64748B', background: '#FFFFFF' }}>
         <Loader2 size={20} className="animate-spin" /> Loading exam...
       </div>
     }>
