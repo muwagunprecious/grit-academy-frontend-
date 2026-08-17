@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Play, Loader2, X, AlertCircle, BookOpen, Clock, Zap, CheckCircle2, ChevronRight, Sparkles, Target, Trophy, Timer } from 'lucide-react';
+import { Play, Loader2, X, AlertCircle, BookOpen, Clock, Zap, CheckCircle2, ChevronRight, Sparkles, Target, Trophy, Timer, Lock } from 'lucide-react';
 import api from '../../../lib/api';
+import { useAuthStore } from '../../../stores/auth.store';
 
 interface Subject {
   id: string;
@@ -85,7 +86,7 @@ function SubjectPill({ sub, selected, onClick }: { sub: Subject; selected: boole
   );
 }
 
-function SubjectCard({ sub, onStart }: { sub: Subject; onStart: () => void }) {
+function SubjectCard({ sub, onStart, isLocked, onPay }: { sub: Subject; onStart: () => void; isLocked?: boolean; onPay?: () => void }) {
   const [hov, setHov] = useState(false);
   const acc = getAccent(sub.name);
   const qCount = sub._count?.questions || 0;
@@ -95,30 +96,32 @@ function SubjectCard({ sub, onStart }: { sub: Subject; onStart: () => void }) {
       onMouseLeave={() => setHov(false)}
       style={{
         background: 'white',
-        border: `1.5px solid ${hov ? acc.color + '40' : 'var(--slate-200)'}`,
+        border: `1.5px solid ${isLocked ? '#FECACA' : hov ? acc.color + '40' : 'var(--slate-200)'}`,
         borderRadius: 20, padding: '22px',
         display: 'flex', flexDirection: 'column', gap: 16,
         transition: 'all 0.2s',
         transform: hov ? 'translateY(-3px)' : 'none',
-        boxShadow: hov ? `0 12px 32px ${acc.color}14` : '0 1px 4px rgba(0,0,0,0.04)',
+        boxShadow: hov ? `0 12px 32px ${isLocked ? 'rgba(239,68,68,0.15)' : acc.color + '14'}` : '0 1px 4px rgba(0,0,0,0.04)',
         cursor: 'default',
+        position: 'relative',
       }}
     >
       {/* Icon + Name */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{
-          width: 48, height: 48, borderRadius: 14, background: acc.bg,
-          border: `1.5px solid ${acc.color}25`,
+          width: 48, height: 48, borderRadius: 14, background: isLocked ? '#FEF2F2' : acc.bg,
+          border: `1.5px solid ${isLocked ? 'rgba(239,68,68,0.2)' : acc.color + '25'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 20, fontWeight: 900, color: acc.color,
-        }}>{acc.icon}</div>
+          fontSize: 20, fontWeight: 900, color: isLocked ? '#DC2626' : acc.color,
+        }}>{isLocked ? '🔒' : acc.icon}</div>
         <div style={{
-          fontSize: 10, fontWeight: 700, color: qCount > 0 ? '#059669' : 'var(--slate-400)',
-          background: qCount > 0 ? '#ECFDF5' : 'var(--slate-100)',
-          border: `1px solid ${qCount > 0 ? 'rgba(5,150,105,0.15)' : 'transparent'}`,
+          fontSize: 10, fontWeight: 800,
+          color: isLocked ? '#DC2626' : qCount > 0 ? '#059669' : 'var(--slate-400)',
+          background: isLocked ? '#FEF2F2' : qCount > 0 ? '#ECFDF5' : 'var(--slate-100)',
+          border: `1px solid ${isLocked ? 'rgba(239,68,68,0.2)' : qCount > 0 ? 'rgba(5,150,105,0.15)' : 'transparent'}`,
           padding: '3px 9px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.04em',
         }}>
-          {qCount > 0 ? 'Ready' : 'No Qs'}
+          {isLocked ? '🔒 Locked' : qCount > 0 ? 'Ready' : 'No Qs'}
         </div>
       </div>
 
@@ -126,34 +129,35 @@ function SubjectCard({ sub, onStart }: { sub: Subject; onStart: () => void }) {
       <div>
         <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--slate-900)' }}>{sub.name}</div>
         <div style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 3, fontWeight: 500 }}>
-          {qCount} question{qCount !== 1 ? 's' : ''} available
+          {isLocked ? 'Requires ₦500 access fee' : `${qCount} question${qCount !== 1 ? 's' : ''} available`}
         </div>
       </div>
 
       {/* Progress bar */}
       <div style={{ height: 4, background: 'var(--slate-100)', borderRadius: 100, overflow: 'hidden' }}>
         <div style={{
-          height: '100%', borderRadius: 100, background: acc.color,
-          width: `${Math.min(100, (qCount / 50) * 100)}%`,
+          height: '100%', borderRadius: 100, background: isLocked ? '#EF4444' : acc.color,
+          width: isLocked ? '100%' : `${Math.min(100, (qCount / 50) * 100)}%`,
           transition: 'width 0.6s ease',
         }} />
       </div>
 
       {/* Start Button */}
       <button
-        onClick={onStart}
+        onClick={isLocked ? onPay : onStart}
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
           height: 40, borderRadius: 11,
-          background: hov ? acc.color : 'transparent',
-          border: `1.5px solid ${acc.color}`,
-          color: hov ? 'white' : acc.color,
-          fontSize: 12, fontWeight: 700, cursor: 'pointer',
+          background: isLocked ? (hov ? '#B91C1C' : '#DC2626') : hov ? acc.color : 'transparent',
+          border: isLocked ? 'none' : `1.5px solid ${acc.color}`,
+          color: isLocked ? 'white' : hov ? 'white' : acc.color,
+          fontSize: 12, fontWeight: 800, cursor: 'pointer',
           transition: 'all 0.18s',
+          boxShadow: isLocked ? '0 4px 12px rgba(220,38,38,0.25)' : 'none',
         }}
       >
-        <Play style={{ width: 13, height: 13, fill: hov ? 'white' : acc.color }} />
-        Start Solo Practice
+        {isLocked ? <Lock style={{ width: 13, height: 13 }} /> : <Play style={{ width: 13, height: 13, fill: hov ? 'white' : acc.color }} />}
+        {isLocked ? '🔒 Pay ₦500 to Unlock' : 'Start Solo Practice'}
       </button>
     </div>
   );
@@ -161,6 +165,9 @@ function SubjectCard({ sub, onStart }: { sub: Subject; onStart: () => void }) {
 
 export default function TestsPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isLocked = user?.role === 'STUDENT' && user?.hasPaidAccessFee === false;
+
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -174,6 +181,19 @@ export default function TestsPage() {
   const [loadingPackages, setLoadingPackages] = useState(true);
   const [startingPackage, setStartingPackage] = useState<string | null>(null);
   const [packageError, setPackageError] = useState('');
+
+  const handlePay = async () => {
+    try {
+      const targetTestId = packages[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
+      const payRes = await api.post('/payments/initialize', { testId: targetTestId });
+      const authUrl = payRes.data?.data?.authorization_url;
+      if (authUrl) {
+        window.location.href = authUrl;
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Payment initialization failed. Please try again.');
+    }
+  };
 
   useEffect(() => {
     api.get('/subjects')
@@ -201,6 +221,7 @@ export default function TestsPage() {
   };
 
   const handleStartCustomExam = async () => {
+    if (isLocked) { handlePay(); return; }
     if (selectedSubjectIds.length === 0) { setExamError('Please select at least 1 subject'); return; }
     setStartingExam(true);
     setExamError('');
@@ -218,6 +239,7 @@ export default function TestsPage() {
   };
 
   const openModalForSubject = (subId: string) => {
+    if (isLocked) { handlePay(); return; }
     setSelectedSubjectIds([subId]);
     setExamError('');
     setShowModal(true);
@@ -474,7 +496,9 @@ export default function TestsPage() {
               <SubjectCard
                 key={sub.id}
                 sub={sub}
+                isLocked={isLocked}
                 onStart={() => openModalForSubject(sub.id)}
+                onPay={handlePay}
               />
             ))}
           </div>
