@@ -18,12 +18,15 @@ const NAV_ITEMS = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname  = usePathname();
   const router    = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, checkAuth } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted,     setMounted]     = useState(false);
   const [scrolled,    setScrolled]    = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    checkAuth();
+  }, []);
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
     window.addEventListener('scroll', h, { passive: true });
