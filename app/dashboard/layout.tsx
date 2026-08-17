@@ -3,18 +3,32 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import {
+  LayoutDashboard,
+  FileText,
+  BarChart3,
+  Bookmark,
+  History,
+  User,
+  LogOut,
+  Sparkles,
+  Lock,
+  CreditCard,
+  Menu,
+  ShieldCheck,
+} from 'lucide-react';
 import { useAuthStore } from '../../stores/auth.store';
 import api from '../../lib/api';
 
 import NotificationModal from '../components/NotificationModal';
 
 const NAV_ITEMS = [
-  { label: 'Overview',       href: '/dashboard',           icon: '◈' },
-  { label: 'Practice Tests', href: '/dashboard/tests',     icon: '📄' },
-  { label: 'Analytics',      href: '/dashboard/analytics', icon: '📊' },
-  { label: 'Bookmarks',      href: '/dashboard/bookmarks', icon: '🔖' },
-  { label: 'Attempts',       href: '/dashboard/attempts',  icon: '⏱' },
-  { label: 'Profile',        href: '/dashboard/profile',   icon: '◎' },
+  { label: 'Overview',       href: '/dashboard',           icon: LayoutDashboard },
+  { label: 'Practice Tests', href: '/dashboard/tests',     icon: FileText },
+  { label: 'Analytics',      href: '/dashboard/analytics', icon: BarChart3 },
+  { label: 'Bookmarks',      href: '/dashboard/bookmarks', icon: Bookmark },
+  { label: 'Attempts',       href: '/dashboard/attempts',  icon: History },
+  { label: 'Profile',        href: '/dashboard/profile',   icon: User },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -59,6 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
     }
   }, []);
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
     window.addEventListener('scroll', h, { passive: true });
@@ -76,7 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initials      = `${user?.firstName?.[0] || 'S'}${user?.lastName?.[0] || ''}`;
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--slate-50)', fontFamily: 'var(--font)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', color: '#0F172A' }}>
 
       {/* ── Backdrop (mobile) ──────────────────────────────── */}
       {sidebarOpen && (
@@ -84,219 +99,218 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           onClick={() => setSidebarOpen(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 39,
-            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(3px)',
+            background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)',
           }}
         />
       )}
 
       {/* ── Sidebar ────────────────────────────────────────── */}
       <aside className={`dash-sidebar${sidebarOpen ? ' open' : ''}`} style={{
-        width: 248, flexShrink: 0,
-        background: 'white',
-        borderRight: '1px solid var(--slate-200)',
+        width: 256, flexShrink: 0,
+        background: '#FFFFFF',
+        borderRight: '1px solid #E2E8F0',
         display: 'flex', flexDirection: 'column',
         position: 'fixed', top: 0, bottom: 0, left: 0,
-        zIndex: 40, transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1)',
+        zIndex: 40, transition: 'transform 0.25s cubic-bezier(0.16,1,0.3,1)',
       }}>
-        {/* Logo */}
-        <div style={{ padding: '22px 20px 16px', borderBottom: '1px solid var(--slate-100)' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        {/* Brand */}
+        <div style={{ padding: '24px 22px 18px', borderBottom: '1px solid #F1F5F9' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
             <div style={{
-              width: 34, height: 34, borderRadius: 10,
-              background: 'var(--blue-600)',
+              width: 36, height: 36, borderRadius: 10,
+              background: '#0F172A',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 800, fontSize: 15, color: 'white',
-              boxShadow: '0 4px 10px rgba(37,99,235,0.25)',
+              fontWeight: 900, fontSize: 16, color: 'white',
+              letterSpacing: '-0.03em',
             }}>G</div>
-            <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em' }}>Grit Academy</span>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em' }}>Grit Academy</div>
+              <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>CBT Exam Portal</div>
+            </div>
           </Link>
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
+        {/* Nav Items */}
+        <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto' }}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);
+            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 11,
-                  padding: '10px 13px', borderRadius: 10,
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 14px', borderRadius: 10,
                   fontSize: 13, fontWeight: active ? 700 : 500,
-                  color: active ? 'var(--blue-600)' : 'var(--slate-500)',
-                  background: active ? 'var(--blue-50)' : 'transparent',
-                  border: `1px solid ${active ? 'var(--blue-100)' : 'transparent'}`,
-                  textDecoration: 'none', transition: 'all 0.15s',
+                  color: active ? '#0F172A' : '#64748B',
+                  background: active ? '#F1F5F9' : 'transparent',
+                  border: `1px solid ${active ? '#E2E8F0' : 'transparent'}`,
+                  textDecoration: 'none', transition: 'all 0.15s ease',
                 }}
-                onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'var(--slate-50)'; (e.currentTarget as HTMLElement).style.color = 'var(--slate-900)'; } }}
-                onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--slate-500)'; } }}
               >
-                <span style={{ fontSize: 15, width: 18, textAlign: 'center' }}>{item.icon}</span>
+                <Icon style={{ width: 17, height: 17, color: active ? '#0F172A' : '#94A3B8', strokeWidth: active ? 2.2 : 1.8 }} />
                 {item.label}
               </Link>
             );
           })}
         </nav>
 
-        {/* User + Logout */}
-        <div style={{ padding: '10px', borderTop: '1px solid var(--slate-100)' }}>
+        {/* User Card & Logout */}
+        <div style={{ padding: 14, borderTop: '1px solid #F1F5F9' }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
             padding: '10px 12px', borderRadius: 12,
-            background: 'var(--slate-50)', border: '1px solid var(--slate-200)',
-            marginBottom: 6,
+            background: '#F8FAFC', border: '1px solid #E2E8F0',
+            marginBottom: 8,
           }}>
             <div style={{
-              width: 34, height: 34, borderRadius: 8,
-              background: 'var(--blue-600)', color: 'white',
-              fontSize: 12, fontWeight: 700, flexShrink: 0,
+              width: 34, height: 34, borderRadius: 10,
+              background: '#0F172A', color: 'white',
+              fontSize: 12, fontWeight: 800, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>{initials}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-900)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {user?.firstName} {user?.lastName}
               </div>
-              <div style={{ fontSize: 10, color: 'var(--slate-400)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user?.email || 'student@email.com'}
+              <div style={{ fontSize: 10, color: user?.hasPaidAccessFee ? '#059669' : '#94A3B8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                {user?.hasPaidAccessFee ? <ShieldCheck style={{ width: 11, height: 11 }} /> : <Lock style={{ width: 11, height: 11 }} />}
+                {user?.hasPaidAccessFee ? 'Paid Account' : '₦500 Unpaid'}
               </div>
             </div>
           </div>
           <button
             onClick={handleLogout}
             style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-              padding: '9px 13px', borderRadius: 9, fontSize: 12, fontWeight: 600,
-              color: 'var(--slate-500)', background: 'none', border: 'none',
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: '9px 12px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+              color: '#64748B', background: 'none', border: 'none',
               cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#FEF2F2'; (e.currentTarget as HTMLElement).style.color = '#DC2626'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = 'var(--slate-500)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = '#64748B'; }}
           >
-            <span style={{ fontSize: 14 }}>↪</span> Log out
+            <LogOut style={{ width: 15, height: 15 }} /> Log out
           </button>
         </div>
       </aside>
 
-      {/* ── Main Area ─────────────────────────────────────── */}
-      <div className="dash-main" style={{ flex: 1, marginLeft: 248, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      {/* ── Main Canvas ─────────────────────────────────────── */}
+      <div className="dash-main" style={{ flex: 1, marginLeft: 256, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
 
-        {/* Top Header */}
+        {/* Header Bar */}
         <header style={{
-          height: 58, position: 'sticky', top: 0, zIndex: 30,
+          height: 60, position: 'sticky', top: 0, zIndex: 30,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 20px',
-          background: scrolled ? 'rgba(255,255,255,0.96)' : 'white',
+          padding: '0 28px',
+          background: scrolled ? 'rgba(255,255,255,0.95)' : '#FFFFFF',
           backdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderBottom: '1px solid var(--slate-100)',
+          borderBottom: '1px solid #E2E8F0',
           transition: 'all 0.2s',
         }}>
-          {/* Hamburger */}
+          {/* Mobile Hamburger */}
           <button
             onClick={() => setSidebarOpen(true)}
             className="mobile-menu-btn"
             style={{
               display: 'none', alignItems: 'center', justifyContent: 'center',
-              width: 38, height: 38, borderRadius: 9,
-              border: '1px solid var(--slate-200)', background: 'white',
-              cursor: 'pointer', fontSize: 16, color: 'var(--slate-700)',
-              flexShrink: 0,
+              width: 36, height: 36, borderRadius: 8,
+              border: '1px solid #E2E8F0', background: 'white',
+              cursor: 'pointer', color: '#0F172A', flexShrink: 0,
             }}
-          >☰</button>
+          >
+            <Menu style={{ width: 18, height: 18 }} />
+          </button>
 
-          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.01em' }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
             {currentPage}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* AI badge — hidden on very small screens */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="ai-badge" style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              padding: '5px 11px', borderRadius: 100,
-              background: 'var(--emerald-50)',
-              border: '1px solid rgba(5,150,105,0.15)',
-              fontSize: 11, fontWeight: 700, color: 'var(--emerald-600)',
+              padding: '4px 10px', borderRadius: 20,
+              background: '#F1F5F9', border: '1px solid #E2E8F0',
+              fontSize: 11, fontWeight: 700, color: '#0F172A',
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#059669', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-              AI Active
+              <Sparkles style={{ width: 12, height: 12, color: '#4F46E5' }} />
+              AI CBT Engine
             </div>
 
-            {/* Avatar */}
             <div style={{
               width: 34, height: 34, borderRadius: 9,
-              background: 'var(--blue-600)', color: 'white',
-              fontSize: 12, fontWeight: 700, flexShrink: 0,
+              background: '#0F172A', color: 'white',
+              fontSize: 12, fontWeight: 800, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer',
             }}>{initials}</div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main style={{ flex: 1, padding: '20px 16px', overflowY: 'auto', position: 'relative' }} className="dash-content">
+        {/* Content Container */}
+        <main style={{ flex: 1, padding: '28px 24px', overflowY: 'auto', position: 'relative' }} className="dash-content">
           {mounted ? (
             <>
-              {/* Unpaid Student Paywall Banner/Modal */}
+              {/* Sleek Minimalist Paywall Card */}
               {user?.role === 'STUDENT' && user?.hasPaidAccessFee === false && pathname !== '/dashboard/profile' ? (
                 <div style={{
-                  background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-                  borderRadius: 24, padding: '36px 32px', color: 'white',
-                  border: '1.5px solid rgba(239,68,68,0.3)',
-                  boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
-                  marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 16,
+                  background: '#FFFFFF',
+                  borderRadius: 18, padding: '24px 28px', color: '#0F172A',
+                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+                  marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  gap: 20, flexWrap: 'wrap',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, maxWidth: 650 }}>
                     <div style={{
-                      width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.15)',
-                      border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', fontSize: 20,
-                    }}>🔒</div>
+                      width: 44, height: 44, borderRadius: 12, background: '#FEF2F2',
+                      border: '1px solid rgba(220,38,38,0.15)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      <Lock style={{ width: 20, height: 20, color: '#DC2626' }} />
+                    </div>
                     <div>
-                      <h3 style={{ fontSize: 20, fontWeight: 900, color: 'white', margin: 0 }}>
-                        Platform Access Locked (₦500 Access Fee Required)
-                      </h3>
-                      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: '4px 0 0', fontWeight: 500 }}>
-                        Pay a one-time ₦500 platform fee to unlock unlimited practice CBT tests, AI step-by-step correction explainers, reading passages, interactive schematics, and analytics.
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                        Platform Access Locked — ₦500 One-Time Fee Required
+                      </div>
+                      <p style={{ fontSize: 12, color: '#64748B', margin: '3px 0 0', fontWeight: 500, lineHeight: 1.5 }}>
+                        Pay a one-time ₦500 fee via Paystack to unlock all 11 subject CBT practice tests, standard JAMB/WAEC packages, and AI explanation features.
                       </p>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', paddingTop: 8 }}>
-                    <button
-                      onClick={async () => {
-                        try {
-                          // Fetch practice tests to initialize payment on test package
-                          const testsRes = await api.get('/tests');
-                          const tests = testsRes.data?.data?.tests || [];
-                          const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
+                  <button
+                    onClick={async () => {
+                      try {
+                        const testsRes = await api.get('/tests');
+                        const tests = testsRes.data?.data?.tests || [];
+                        const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
 
-                          const payRes = await api.post('/payments/initialize', { testId: targetTestId });
-                          const authUrl = payRes.data?.data?.authorization_url;
-                          if (authUrl) {
-                            window.location.href = authUrl;
-                          }
-                        } catch (err: any) {
-                          setNotifyModal({
-                            open: true,
-                            title: 'Payment Error',
-                            message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
-                            type: 'error',
-                          });
+                        const payRes = await api.post('/payments/initialize', { testId: targetTestId });
+                        const authUrl = payRes.data?.data?.authorization_url;
+                        if (authUrl) {
+                          window.location.href = authUrl;
                         }
-                      }}
-                      style={{
-                        padding: '12px 24px', borderRadius: 14, border: 'none',
-                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                        color: 'white', fontSize: 13, fontWeight: 800, cursor: 'pointer',
-                        boxShadow: '0 4px 20px rgba(5,150,105,0.4)', transition: 'all 0.18s',
-                      }}
-                    >
-                      💳 Pay ₦500 via Paystack Now
-                    </button>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-                      ⚡ Instant automated activation via Paystack
-                    </span>
-                  </div>
+                      } catch (err: any) {
+                        setNotifyModal({
+                          open: true,
+                          title: 'Payment Error',
+                          message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
+                          type: 'error',
+                        });
+                      }
+                    }}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      height: 42, padding: '0 20px', borderRadius: 10, border: 'none',
+                      background: '#0F172A', color: 'white', fontSize: 13, fontWeight: 800,
+                      cursor: 'pointer', boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
+                      transition: 'all 0.15s', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <CreditCard style={{ width: 15, height: 15 }} />
+                    Pay ₦500 via Paystack Now
+                  </button>
                 </div>
               ) : null}
 
@@ -312,66 +326,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-              <div style={{ width: 32, height: 32, border: '3px solid var(--slate-200)', borderTopColor: 'var(--blue-600)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+              <div style={{ width: 28, height: 28, border: '2.5px solid #E2E8F0', borderTopColor: '#0F172A', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
             </div>
           )}
         </main>
-
-        {/* ── Mobile Bottom Nav ──────────────────────────────── */}
-        <nav className="mobile-bottom-nav" style={{
-          display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
-          height: 64, background: 'white',
-          borderTop: '1px solid var(--slate-200)',
-          zIndex: 50, padding: '0 4px',
-          alignItems: 'center', justifyContent: 'space-around',
-          boxShadow: '0 -4px 24px rgba(0,0,0,0.06)',
-        }}>
-          {NAV_ITEMS.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-                  padding: '6px 10px', borderRadius: 12, textDecoration: 'none',
-                  color: active ? 'var(--blue-600)' : 'var(--slate-400)',
-                  background: active ? 'var(--blue-50)' : 'transparent',
-                  flex: 1, transition: 'all 0.15s',
-                }}
-              >
-                <span style={{ fontSize: 18, lineHeight: 1 }}>{item.icon}</span>
-                <span style={{ fontSize: 9, fontWeight: active ? 800 : 600, letterSpacing: '0.02em' }}>
-                  {item.label.split(' ')[0]}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
       </div>
 
+      {/* ── Mobile Layout Responsive Styles ───────────────── */}
       <style>{`
-        @keyframes spin  { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
-
-        /* ── Tablet ── */
-        @media (max-width: 1024px) {
-          .dash-sidebar       { transform: translateX(-100%); box-shadow: none; }
-          .dash-sidebar.open  { transform: translateX(0); box-shadow: 4px 0 32px rgba(0,0,0,0.15); }
-          .dash-main          { margin-left: 0 !important; }
-          .mobile-menu-btn    { display: flex !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 900px) {
+          .dash-sidebar { transform: translateX(-100%); }
+          .dash-sidebar.open { transform: translateX(0); }
+          .dash-main { margin-left: 0 !important; }
+          .mobile-menu-btn { display: flex !important; }
         }
-
-        /* ── Desktop content padding ── */
-        @media (min-width: 1025px) {
-          .dash-content { padding: 28px 32px !important; }
-        }
-
-        /* ── Mobile ── */
-        @media (max-width: 640px) {
-          .ai-badge           { display: none !important; }
-          .mobile-bottom-nav  { display: flex !important; }
-          .dash-content       { padding: 16px 12px 80px !important; } /* bottom padding for nav */
+        @media (max-width: 480px) {
+          .ai-badge { display: none !important; }
         }
       `}</style>
     </div>

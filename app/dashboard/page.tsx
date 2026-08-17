@@ -2,6 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import {
+  FileText,
+  BarChart3,
+  Trophy,
+  Clock,
+  ArrowUpRight,
+  Sparkles,
+  Bookmark,
+  CheckCircle2,
+  AlertCircle,
+  ChevronRight,
+  TrendingUp,
+} from 'lucide-react';
 import api from '../../lib/api';
 import { useAuthStore } from '../../stores/auth.store';
 
@@ -27,100 +40,65 @@ const MOCK: AnalyticsData = {
   progress: [],
 };
 
-const SUBJECT_COLORS: Record<string, string> = {
-  Physics: '#2563EB', Chemistry: '#7C3AED', Mathematics: '#059669', English: '#D97706',
-};
-
-const QUICK_ACTIONS = [
-  { title: 'Take a Practice Test', desc: 'Browse available standard exams and mock tests', href: '/dashboard/tests', icon: '📄', accent: '#2563EB' },
-  { title: 'View Analytics', desc: 'Detailed performance summaries and score trends', href: '/dashboard/analytics', icon: '📊', accent: '#059669' },
-  { title: 'Saved Bookmarks', desc: 'Review your saved questions and revision sets', href: '/dashboard/bookmarks', icon: '🔖', accent: '#7C3AED' },
-];
-
 function formatTime(s: number) {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-function StatCard({ icon, label, value, sub, accent }: { icon: string; label: string; value: string; sub?: string; accent: string }) {
+function StatCard({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string; sub?: string }) {
   const [hov, setHov] = useState(false);
   return (
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: 'white',
-        borderRadius: 18,
-        border: `1.5px solid ${hov ? accent + '30' : 'var(--slate-200)'}`,
-        padding: '22px 20px', display: 'flex', flexDirection: 'column', gap: 14,
-        transition: 'all 0.18s',
-        transform: hov ? 'translateY(-2px)' : 'none',
-        boxShadow: hov ? `0 8px 24px ${accent}14` : '0 1px 3px rgba(0,0,0,0.04)',
-        cursor: 'default',
+        background: '#FFFFFF',
+        borderRadius: 16,
+        border: `1px solid ${hov ? '#CBD5E1' : '#E2E8F0'}`,
+        padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 14,
+        transition: 'all 0.15s ease',
+        boxShadow: hov ? '0 4px 16px rgba(0,0,0,0.03)' : '0 1px 2px rgba(0,0,0,0.02)',
       }}
     >
-      <div style={{
-        width: 40, height: 40, borderRadius: 11, flexShrink: 0,
-        background: accent + '12', border: `1.5px solid ${accent}20`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17,
-      }}>{icon}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {label}
+        </span>
+        <div style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: '#F8FAFC', border: '1px solid #E2E8F0',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A',
+        }}>
+          <Icon style={{ width: 16, height: 16, strokeWidth: 1.8 }} />
+        </div>
+      </div>
       <div>
-        <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.025em', lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: 11, color: 'var(--slate-500)', marginTop: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
-        {sub && <div style={{ fontSize: 10, color: accent, marginTop: 4, fontWeight: 700 }}>{sub}</div>}
+        <div style={{ fontSize: 28, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</div>
+        {sub && <div style={{ fontSize: 11, color: '#059669', marginTop: 8, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+          <TrendingUp style={{ width: 12, height: 12 }} /> {sub}
+        </div>}
       </div>
     </div>
   );
 }
 
-function ProgressBar({ label, pct, color }: { label: string; pct: number; color: string }) {
+function ProgressBar({ label, pct }: { label: string; pct: number }) {
   const [width, setWidth] = useState(0);
   useEffect(() => { const t = setTimeout(() => setWidth(pct), 100); return () => clearTimeout(t); }, [pct]);
   return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-700)' }}>{label}</span>
-        <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--slate-900)' }}>{pct}%</span>
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: '#64748B' }}>{pct}%</span>
       </div>
-      <div style={{ height: 7, background: 'var(--slate-100)', borderRadius: 100, overflow: 'hidden' }}>
+      <div style={{ height: 6, background: '#F1F5F9', borderRadius: 100, overflow: 'hidden' }}>
         <div style={{
-          height: '100%', background: color, borderRadius: 100,
+          height: '100%', background: '#0F172A', borderRadius: 100,
           width: `${width}%`, transition: 'width 0.8s cubic-bezier(0.16,1,0.3,1)',
         }} />
       </div>
     </div>
-  );
-}
-
-function QuickActionCard({ item }: { item: { title: string; desc: string; href: string; icon: string; accent: string } }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <Link
-      href={item.href}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        display: 'flex', flexDirection: 'column', gap: 14,
-        padding: '22px', borderRadius: 18,
-        border: `1.5px solid ${hov ? item.accent + '35' : 'var(--slate-200)'}`,
-        background: 'white', textDecoration: 'none',
-        transition: 'all 0.18s',
-        transform: hov ? 'translateY(-2px)' : 'none',
-        boxShadow: hov ? `0 8px 24px ${item.accent}12` : 'none',
-      }}
-    >
-      <div style={{
-        width: 40, height: 40, borderRadius: 11,
-        background: item.accent + '12', border: `1.5px solid ${item.accent}20`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17,
-      }}>{item.icon}</div>
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 5 }}>{item.title}</div>
-        <div style={{ fontSize: 11, color: 'var(--slate-400)', lineHeight: 1.6, fontWeight: 400 }}>{item.desc}</div>
-      </div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: item.accent }}>Open →</div>
-    </Link>
   );
 }
 
@@ -138,7 +116,7 @@ export default function DashboardOverview() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-      <div style={{ width: 32, height: 32, border: '3px solid var(--slate-200)', borderTopColor: 'var(--blue-600)', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+      <div style={{ width: 28, height: 28, border: '2.5px solid #E2E8F0', borderTopColor: '#0F172A', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
     </div>
   );
 
@@ -147,127 +125,205 @@ export default function DashboardOverview() {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
-    <div style={{ maxWidth: 1180, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ maxWidth: 1140, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-      {/* ── Welcome Banner ────────────────────────────────── */}
+      {/* ── Minimalist Welcome Card ──────────────────────── */}
       <div style={{
-        borderRadius: 22,
-        background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-        padding: '36px 40px',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.12)',
+        background: '#FFFFFF',
+        borderRadius: 20,
+        border: '1px solid #E2E8F0',
+        padding: '32px 36px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 24, flexWrap: 'wrap',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
       }}>
-        <div style={{ position: 'absolute', right: -100, top: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(37,99,235,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', left: '55%', bottom: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 500 }}>
+        <div style={{ maxWidth: 560 }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 7,
-            padding: '5px 14px', borderRadius: 100,
-            background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.25)',
-            fontSize: 11, fontWeight: 700, color: 'rgba(147,197,253,1)',
-            textTransform: 'uppercase', letterSpacing: '0.07em',
-            marginBottom: 16,
-          }}>✦ Personalized Dashboard</div>
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '4px 10px', borderRadius: 20,
+            background: '#F1F5F9', border: '1px solid #E2E8F0',
+            fontSize: 11, fontWeight: 700, color: '#475569',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+            marginBottom: 14,
+          }}>
+            <Sparkles style={{ width: 12, height: 12, color: '#0F172A' }} /> Student Portal Overview
+          </div>
 
-          <h1 style={{ fontSize: 30, fontWeight: 900, color: 'white', letterSpacing: '-0.025em', lineHeight: 1.1, margin: '0 0 10px' }}>
-            {greeting}, {firstName} 👋
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.03em', lineHeight: 1.15, margin: '0 0 8px' }}>
+            {greeting}, {firstName}
           </h1>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, fontWeight: 400, margin: '0 0 24px' }}>
-            You&apos;re making great progress. Keep it up — your next exam preparation is within reach.
+          <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, fontWeight: 500, margin: '0 0 24px' }}>
+            Track your progress, launch custom 5-subject practice CBT exams, and review AI explanations.
           </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/dashboard/tests" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              height: 44, padding: '0 22px',
-              background: 'var(--blue-600)', color: 'white',
-              fontSize: 13, fontWeight: 700, borderRadius: 12,
-              textDecoration: 'none', boxShadow: '0 4px 16px rgba(37,99,235,0.35)',
-              transition: 'all 0.15s',
-            }}>Practice CBT Mock →</Link>
+              height: 42, padding: '0 20px',
+              background: '#0F172A', color: 'white',
+              fontSize: 13, fontWeight: 800, borderRadius: 10,
+              textDecoration: 'none', boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
+              transition: 'all 0.15s ease',
+            }}>
+              <FileText style={{ width: 15, height: 15 }} /> Launch Practice CBT →
+            </Link>
             <Link href="/dashboard/analytics" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              height: 44, padding: '0 20px',
-              background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.8)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              fontSize: 13, fontWeight: 600, borderRadius: 12,
-              textDecoration: 'none', transition: 'all 0.15s',
-            }}>View Analytics</Link>
+              height: 42, padding: '0 18px',
+              background: '#FFFFFF', color: '#0F172A',
+              border: '1px solid #E2E8F0',
+              fontSize: 13, fontWeight: 700, borderRadius: 10,
+              textDecoration: 'none', transition: 'all 0.15s ease',
+            }}>
+              <BarChart3 style={{ width: 15, height: 15 }} /> View Analytics
+            </Link>
+          </div>
+        </div>
+
+        {/* Right Quick Summary Badge */}
+        <div style={{
+          background: '#F8FAFC',
+          border: '1px solid #E2E8F0',
+          borderRadius: 16,
+          padding: '20px 24px',
+          display: 'flex', flexDirection: 'column', gap: 12,
+          minWidth: 220,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Account Status
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: user?.hasPaidAccessFee ? '#059669' : '#DC2626' }} />
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#0F172A' }}>
+              {user?.hasPaidAccessFee ? 'Full Access Unlocked' : '₦500 Access Fee Required'}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>
+            {data?.stats.attemptsCount || 0} total CBT exam attempts recorded.
           </div>
         </div>
       </div>
 
       {/* ── Stat Cards ────────────────────────────────────── */}
-      <div className="dash-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-        <StatCard icon="📄" label="Tests Taken" value={String(data?.stats.attemptsCount || 0)} accent="#2563EB" />
-        <StatCard icon="📈" label="Avg. Score" value={`${data?.stats.averageScore?.toFixed(0) || 0}%`} sub="vs 65% last month ↑" accent="#059669" />
-        <StatCard icon="🏆" label="Best Score" value={`${data?.stats.highestScore || 0}%`} accent="#7C3AED" />
-        <StatCard icon="⏱" label="Study Time" value={formatTime(data?.stats.totalTimeSpent || 0)} accent="#D97706" />
+      <div className="dash-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <StatCard icon={FileText} label="Tests Completed" value={String(data?.stats.attemptsCount || 0)} />
+        <StatCard icon={BarChart3} label="Average Score" value={`${data?.stats.averageScore?.toFixed(0) || 0}%`} sub="Top 15% rank" />
+        <StatCard icon={Trophy} label="Highest Score" value={`${data?.stats.highestScore || 0}%`} />
+        <StatCard icon={Clock} label="Total Study Time" value={formatTime(data?.stats.totalTimeSpent || 0)} />
       </div>
 
-      {/* ── Analysis Row ──────────────────────────────────── */}
-      <div className="dash-analysis" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+      {/* ── Analytics & AI Insights Grid ──────────────────── */}
+      <div className="dash-analysis" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 18 }}>
 
         {/* Subject Performance */}
-        <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: '26px 28px' }}>
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20, padding: '26px 28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)' }}>Subject Performance</div>
-            <Link href="/dashboard/analytics" style={{ fontSize: 11, fontWeight: 700, color: 'var(--blue-600)', textDecoration: 'none' }}>View Analytics →</Link>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>Subject Performance</div>
+              <div style={{ fontSize: 11, color: '#64748B', marginTop: 2, fontWeight: 500 }}>Average percentage per subject</div>
+            </div>
+            <Link href="/dashboard/analytics" style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+              Details <ArrowUpRight style={{ width: 14, height: 14 }} />
+            </Link>
           </div>
           {data?.subjectBreakdown.map(s => (
-            <ProgressBar key={s.subjectId} label={s.subjectName} pct={s.percentage} color={SUBJECT_COLORS[s.subjectName] || '#2563EB'} />
+            <ProgressBar key={s.subjectId} label={s.subjectName} pct={s.percentage} />
           ))}
         </div>
 
-        {/* AI Insights */}
-        <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: '26px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 15 }}>✦</span>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)' }}>AI Insights</div>
+        {/* AI Insights Card */}
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20, padding: '26px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Sparkles style={{ width: 16, height: 16, color: '#0F172A' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#0F172A' }}>AI Diagnostic</div>
+              <div style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>Topic strength breakdown</div>
+            </div>
           </div>
 
           <div>
-            <div style={{ fontSize: 9, fontWeight: 800, color: 'var(--emerald-600)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Strong Topics</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <CheckCircle2 style={{ width: 12, height: 12 }} /> High Mastery Topics
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {data?.strongTopics.map(t => (
                 <span key={t} style={{
-                  padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                  background: 'var(--emerald-50)', color: 'var(--emerald-600)',
-                  border: '1px solid rgba(5,150,105,0.12)',
+                  padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+                  background: '#ECFDF5', color: '#047857',
+                  border: '1px solid rgba(5,150,105,0.15)',
                 }}>{t}</span>
               ))}
             </div>
           </div>
 
           <div>
-            <div style={{ fontSize: 9, fontWeight: 800, color: '#DC2626', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Needs Focus</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: '#DC2626', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <AlertCircle style={{ width: 12, height: 12 }} /> Revision Needed
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {data?.weakTopics.map(t => (
                 <span key={t} style={{
-                  padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                  background: '#FEF2F2', color: '#DC2626',
-                  border: '1px solid rgba(220,38,38,0.1)',
+                  padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+                  background: '#FEF2F2', color: '#B91C1C',
+                  border: '1px solid rgba(220,38,38,0.15)',
                 }}>{t}</span>
               ))}
             </div>
           </div>
 
           <Link href="/dashboard/tests" style={{
-            display: 'block', padding: '11px', borderRadius: 12,
-            background: 'var(--blue-600)', color: 'white',
-            fontSize: 12, fontWeight: 700, textAlign: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            height: 40, borderRadius: 10,
+            background: '#0F172A', color: 'white',
+            fontSize: 12, fontWeight: 800, textAlign: 'center',
             textDecoration: 'none', marginTop: 'auto',
-            boxShadow: '0 4px 12px rgba(37,99,235,0.2)',
-          }}>Study Weak Topics →</Link>
+            transition: 'all 0.15s ease',
+          }}>
+            Target Weak Areas <ChevronRight style={{ width: 14, height: 14 }} />
+          </Link>
         </div>
       </div>
 
       {/* ── Quick Action Cards ────────────────────────────── */}
-      <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-        {QUICK_ACTIONS.map((item) => (
-          <QuickActionCard key={item.title} item={item} />
-        ))}
+      <div className="dash-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        {[
+          { title: 'Practice Tests & Mock Exams', desc: 'Take custom 5-subject CBT tests or practice single subjects', href: '/dashboard/tests', icon: FileText },
+          { title: 'Performance Analytics', desc: 'Review detailed speed, accuracy, and topic score analytics', href: '/dashboard/analytics', icon: BarChart3 },
+          { title: 'Saved Question Bookmarks', desc: 'Access your saved revision questions and step-by-step explainers', href: '/dashboard/bookmarks', icon: Bookmark },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.title}
+              href={item.href}
+              style={{
+                display: 'flex', flexDirection: 'column', gap: 12,
+                padding: '24px', borderRadius: 18,
+                border: '1px solid #E2E8F0',
+                background: '#FFFFFF', textDecoration: 'none',
+                transition: 'all 0.15s ease',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+              }}
+            >
+              <div style={{
+                width: 38, height: 38, borderRadius: 10,
+                background: '#F8FAFC', border: '1px solid #E2E8F0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A',
+              }}>
+                <Icon style={{ width: 18, height: 18, strokeWidth: 1.8 }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>{item.title}</div>
+                <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5, fontWeight: 500 }}>{item.desc}</div>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', marginTop: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+                Open Section <ChevronRight style={{ width: 14, height: 14 }} />
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       <style>{`
