@@ -293,18 +293,26 @@ export default function TestsPage() {
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button
-                onClick={() => { setSelectedSubjectIds([]); setExamError(''); setShowModal(true); }}
+                onClick={() => {
+                  if (isLocked) {
+                    handlePay();
+                    return;
+                  }
+                  setSelectedSubjectIds([]);
+                  setExamError('');
+                  setShowModal(true);
+                }}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 9,
                   height: 48, padding: '0 26px', borderRadius: 14,
-                  background: 'var(--blue-600)', color: 'white',
+                  background: isLocked ? '#DC2626' : 'var(--blue-600)', color: 'white',
                   fontSize: 13, fontWeight: 800, cursor: 'pointer', border: 'none',
-                  boxShadow: '0 6px 24px rgba(37,99,235,0.45)',
+                  boxShadow: isLocked ? '0 6px 24px rgba(220,38,38,0.45)' : '0 6px 24px rgba(37,99,235,0.45)',
                   transition: 'all 0.18s',
                 }}
               >
-                <Play style={{ width: 15, height: 15, fill: 'white' }} />
-                Start Custom Exam
+                {isLocked ? <Lock style={{ width: 15, height: 15 }} /> : <Play style={{ width: 15, height: 15, fill: 'white' }} />}
+                {isLocked ? '🔒 Pay ₦500 to Unlock Custom Exam' : 'Start Custom Exam'}
               </button>
               <div style={{ display: 'flex', gap: 8 }}>
                 {[
@@ -678,22 +686,26 @@ export default function TestsPage() {
 
             {/* Start Button */}
             <button
-              onClick={handleStartCustomExam}
-              disabled={startingExam || selectedSubjectIds.length === 0}
+              onClick={isLocked ? handlePay : handleStartCustomExam}
+              disabled={startingExam || (!isLocked && selectedSubjectIds.length === 0)}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                height: 52, borderRadius: 14, border: 'none', cursor: startingExam || selectedSubjectIds.length === 0 ? 'not-allowed' : 'pointer',
-                background: selectedSubjectIds.length === 0
+                height: 52, borderRadius: 14, border: 'none', cursor: startingExam ? 'not-allowed' : 'pointer',
+                background: isLocked
+                  ? 'linear-gradient(135deg, #DC2626, #B91C1C)'
+                  : selectedSubjectIds.length === 0
                   ? 'var(--slate-200)'
                   : 'linear-gradient(135deg, #2563EB, #1D4ED8)',
-                color: selectedSubjectIds.length === 0 ? 'var(--slate-400)' : 'white',
+                color: 'white',
                 fontSize: 14, fontWeight: 800,
-                boxShadow: selectedSubjectIds.length > 0 ? '0 6px 24px rgba(37,99,235,0.35)' : 'none',
+                boxShadow: isLocked ? '0 6px 24px rgba(220,38,38,0.4)' : selectedSubjectIds.length > 0 ? '0 6px 24px rgba(37,99,235,0.35)' : 'none',
                 transition: 'all 0.2s',
               }}
             >
               {startingExam ? (
                 <><Loader2 style={{ width: 18, height: 18, animation: 'spin 0.7s linear infinite' }} /> Launching Exam...</>
+              ) : isLocked ? (
+                <><Lock style={{ width: 16, height: 16 }} /> 🔒 Pay ₦500 via Paystack to Unlock Exam</>
               ) : (
                 <><Play style={{ width: 16, height: 16, fill: selectedSubjectIds.length > 0 ? 'white' : 'var(--slate-400)' }} />
                   {selectedSubjectIds.length === 0 ? 'Select at least 1 subject' : `Start CBT Exam — ${selectedSubjectIds.length} Subject${selectedSubjectIds.length > 1 ? 's' : ''}`}
