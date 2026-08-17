@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/auth.store';
 import api from '../../lib/api';
 
+import NotificationModal from '../components/NotificationModal';
+
 const NAV_ITEMS = [
   { label: 'Overview',       href: '/dashboard',           icon: '◈' },
   { label: 'Practice Tests', href: '/dashboard/tests',     icon: '📄' },
@@ -22,6 +24,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted,     setMounted]     = useState(false);
   const [scrolled,    setScrolled]    = useState(false);
+  const [notifyModal, setNotifyModal] = useState<{ open: boolean; title: string; message: string; type?: 'error' | 'info' | 'success' }>({
+    open: false, title: '', message: '',
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -244,7 +249,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             window.location.href = authUrl;
                           }
                         } catch (err: any) {
-                          alert(err.response?.data?.message || 'Payment initialization failed. Please try again.');
+                          setNotifyModal({
+                            open: true,
+                            title: 'Payment Error',
+                            message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
+                            type: 'error',
+                          });
                         }
                       }}
                       style={{
@@ -264,6 +274,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               ) : null}
 
               {children}
+
+              <NotificationModal
+                isOpen={notifyModal.open}
+                type={notifyModal.type || 'error'}
+                title={notifyModal.title}
+                message={notifyModal.message}
+                onClose={() => setNotifyModal({ ...notifyModal, open: false })}
+              />
             </>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Play, Loader2, X, AlertCircle, BookOpen, Clock, Zap, CheckCircle2, ChevronRight, Sparkles, Target, Trophy, Timer, Lock } from 'lucide-react';
 import api from '../../../lib/api';
 import { useAuthStore } from '../../../stores/auth.store';
+import NotificationModal from '../../components/NotificationModal';
 
 interface Subject {
   id: string;
@@ -181,6 +182,9 @@ export default function TestsPage() {
   const [loadingPackages, setLoadingPackages] = useState(true);
   const [startingPackage, setStartingPackage] = useState<string | null>(null);
   const [packageError, setPackageError] = useState('');
+  const [notifyModal, setNotifyModal] = useState<{ open: boolean; title: string; message: string; type?: 'error' | 'info' | 'success' }>({
+    open: false, title: '', message: '',
+  });
 
   const handlePay = async () => {
     try {
@@ -191,7 +195,12 @@ export default function TestsPage() {
         window.location.href = authUrl;
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Payment initialization failed. Please try again.');
+      setNotifyModal({
+        open: true,
+        title: 'Payment Error',
+        message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
+        type: 'error',
+      });
     }
   };
 
@@ -738,6 +747,13 @@ export default function TestsPage() {
           .modal-subjects { grid-template-columns: 1fr !important; }
         }
       `}</style>
+      <NotificationModal
+        isOpen={notifyModal.open}
+        type={notifyModal.type || 'error'}
+        title={notifyModal.title}
+        message={notifyModal.message}
+        onClose={() => setNotifyModal({ ...notifyModal, open: false })}
+      />
     </div>
   );
 }
