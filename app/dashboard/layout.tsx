@@ -31,6 +31,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMounted(true);
     checkAuth();
+
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const reference = urlParams.get('reference') || urlParams.get('trxref');
+      if (reference) {
+        api.post('/payments/verify', { reference })
+          .then(async () => {
+            await checkAuth();
+            setNotifyModal({
+              open: true,
+              title: '🎉 Payment Successful!',
+              message: 'Your ₦500 access fee has been verified via Paystack. Unlimited platform access is now unlocked!',
+              type: 'success',
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+          })
+          .catch((err) => {
+            setNotifyModal({
+              open: true,
+              title: 'Payment Status',
+              message: err.response?.data?.message || 'Verification checked.',
+              type: 'info',
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+          });
+      }
+    }
   }, []);
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
