@@ -235,7 +235,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           const tests = testsRes.data?.data?.tests || [];
                           const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
 
-                          const payRes = await api.post('/payment/initialize', { testId: targetTestId });
+                          const payRes = await api.post('/payments/initialize', { testId: targetTestId });
                           const authUrl = payRes.data?.data?.authorization_url;
                           if (authUrl) {
                             window.location.href = authUrl;
