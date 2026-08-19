@@ -92,31 +92,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const currentPage   = NAV_ITEMS.find((n) => isActive(n.href))?.label || 'Dashboard';
   const initials      = `${user?.firstName?.[0] || 'S'}${user?.lastName?.[0] || ''}`;
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) return;
-    setApplyingCoupon(true);
-    try {
-      const res = await api.post('/payments/apply-coupon', { code: couponCode });
-      await checkAuth();
-      setNotifyModal({
-        open: true,
-        title: '🎉 Promo Code Applied!',
-        message: res.data?.message || 'Coupon "solar" applied successfully! Your ₦500 access fee has been waived.',
-        type: 'success',
-      });
-      setCouponCode('');
-    } catch (err: any) {
-      setNotifyModal({
-        open: true,
-        title: 'Invalid Promo Code',
-        message: err.response?.data?.message || 'Invalid coupon code. Please check and try again.',
-        type: 'error',
-      });
-    } finally {
-      setApplyingCoupon(false);
-    }
-  };
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F8FAFC', color: '#0F172A' }}>
 
