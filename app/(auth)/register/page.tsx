@@ -3,13 +3,13 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle2, Tag } from 'lucide-react';
 import { useAuthStore } from '../../../stores/auth.store';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuthStore();
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', confirmPassword: '', referralCode: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -18,6 +18,10 @@ export default function RegisterPage() {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match.');
+      return;
+    }
+    if (form.referralCode.trim() !== '' && form.referralCode.trim().toLowerCase() !== 'hydrogen') {
+      setError('Invalid referral code. Only "hydrogen" is accepted.');
       return;
     }
     setLoading(true);
@@ -257,6 +261,27 @@ export default function RegisterPage() {
                     type="password" required value={form.confirmPassword}
                     onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
                     placeholder="Confirm your password"
+                    style={{
+                      width: '100%', height: 44, paddingLeft: 38, paddingRight: 12,
+                      borderRadius: 10, border: '1.5px solid var(--slate-200)',
+                      background: 'var(--slate-50)', fontSize: 13, fontWeight: 500,
+                      color: 'var(--slate-900)', outline: 'none', transition: 'all 0.15s',
+                    }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--blue-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.08)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--slate-200)'; e.currentTarget.style.boxShadow = 'none'; }}
+                  />
+                </div>
+              </div>
+
+              {/* Referral Code (Optional) */}
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 7 }}>Referral Code (Optional)</label>
+                <div style={{ position: 'relative' }}>
+                  <Tag style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--slate-400)', pointerEvents: 'none' }} />
+                  <input
+                    type="text" value={form.referralCode}
+                    onChange={(e) => setForm({ ...form, referralCode: e.target.value })}
+                    placeholder="e.g. hydrogen"
                     style={{
                       width: '100%', height: 44, paddingLeft: 38, paddingRight: 12,
                       borderRadius: 10, border: '1.5px solid var(--slate-200)',

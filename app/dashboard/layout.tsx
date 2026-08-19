@@ -40,8 +40,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted,     setMounted]     = useState(false);
   const [scrolled,    setScrolled]    = useState(false);
-  const [couponCode, setCouponCode]   = useState('');
-  const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [notifyModal, setNotifyModal] = useState<{ open: boolean; title: string; message: string; type?: 'error' | 'info' | 'success' }>({
     open: false, title: '', message: '',
   });
@@ -287,99 +285,59 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   borderRadius: 18, padding: '24px 28px', color: '#0F172A',
                   border: '1px solid #E2E8F0',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-                  marginBottom: 28, display: 'flex', flexDirection: 'column', gap: 20,
+                  marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  gap: 20, flexWrap: 'wrap',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, maxWidth: 650 }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: 12, background: '#FEF2F2',
-                        border: '1px solid rgba(220,38,38,0.15)', display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', flexShrink: 0,
-                      }}>
-                        <Lock style={{ width: 20, height: 20, color: '#DC2626' }} />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
-                          Platform Access Locked — ₦500 One-Time Fee Required
-                        </div>
-                        <p style={{ fontSize: 12, color: '#64748B', margin: '3px 0 0', fontWeight: 500, lineHeight: 1.5 }}>
-                          Pay a one-time ₦500 fee via Paystack or enter promo code <code style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 4, color: '#4F46E5', fontWeight: 700 }}>solar</code> to waive the fee and unlock all CBT practice tests & AI tutor features.
-                        </p>
-                      </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, maxWidth: 650 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12, background: '#FEF2F2',
+                      border: '1px solid rgba(220,38,38,0.15)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      <Lock style={{ width: 20, height: 20, color: '#DC2626' }} />
                     </div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
+                        Platform Access Locked — ₦500 One-Time Fee Required
+                      </div>
+                      <p style={{ fontSize: 12, color: '#64748B', margin: '3px 0 0', fontWeight: 500, lineHeight: 1.5 }}>
+                        Pay a one-time ₦500 fee via Paystack to unlock all 11 subject CBT practice tests, standard JAMB/WAEC packages, and AI explanation features.
+                      </p>
+                    </div>
+                  </div>
 
-                    <button
-                      onClick={async () => {
-                        try {
-                          const testsRes = await api.get('/tests');
-                          const tests = testsRes.data?.data?.tests || [];
-                          const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
+                  <button
+                    onClick={async () => {
+                      try {
+                        const testsRes = await api.get('/tests');
+                        const tests = testsRes.data?.data?.tests || [];
+                        const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
 
-                          const payRes = await api.post('/payments/initialize', { testId: targetTestId });
-                          const authUrl = payRes.data?.data?.authorization_url;
-                          if (authUrl) {
-                            window.location.href = authUrl;
-                          }
-                        } catch (err: any) {
-                          setNotifyModal({
-                            open: true,
-                            title: 'Payment Error',
-                            message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
-                            type: 'error',
-                          });
+                        const payRes = await api.post('/payments/initialize', { testId: targetTestId });
+                        const authUrl = payRes.data?.data?.authorization_url;
+                        if (authUrl) {
+                          window.location.href = authUrl;
                         }
-                      }}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 8,
-                        height: 42, padding: '0 20px', borderRadius: 10, border: 'none',
-                        background: '#0F172A', color: 'white', fontSize: 13, fontWeight: 800,
-                        cursor: 'pointer', boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
-                        transition: 'all 0.15s', whiteSpace: 'nowrap',
-                      }}
-                    >
-                      <CreditCard style={{ width: 15, height: 15 }} />
-                      Pay ₦500 via Paystack
-                    </button>
-                  </div>
-
-                  {/* Promo Code / Coupon Section */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
-                    paddingTop: 16, borderTop: '1px solid #F1F5F9'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: '#334155' }}>
-                      <Ticket style={{ width: 16, height: 16, color: '#4F46E5' }} />
-                      Have a Promo / Coupon Code?
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, maxWidth: 420 }}>
-                      <input
-                        type="text"
-                        placeholder="Enter code e.g. solar"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleApplyCoupon(); }}
-                        style={{
-                          flex: 1, height: 38, padding: '0 14px', borderRadius: 8,
-                          border: '1px solid #CBD5E1', fontSize: 13, fontWeight: 600, color: '#0F172A',
-                          outline: 'none', background: '#F8FAFC',
-                        }}
-                      />
-                      <button
-                        onClick={handleApplyCoupon}
-                        disabled={applyingCoupon || !couponCode.trim()}
-                        style={{
-                          height: 38, padding: '0 18px', borderRadius: 8, border: 'none',
-                          background: '#4F46E5', color: 'white', fontSize: 12, fontWeight: 800,
-                          cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
-                          opacity: applyingCoupon || !couponCode.trim() ? 0.6 : 1,
-                          display: 'flex', alignItems: 'center', gap: 6,
-                        }}
-                      >
-                        {applyingCoupon ? 'Applying...' : 'Apply Coupon'}
-                      </button>
-                    </div>
-                  </div>
+                      } catch (err: any) {
+                        setNotifyModal({
+                          open: true,
+                          title: 'Payment Error',
+                          message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
+                          type: 'error',
+                        });
+                      }
+                    }}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      height: 42, padding: '0 20px', borderRadius: 10, border: 'none',
+                      background: '#0F172A', color: 'white', fontSize: 13, fontWeight: 800,
+                      cursor: 'pointer', boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
+                      transition: 'all 0.15s', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <CreditCard style={{ width: 15, height: 15 }} />
+                    Pay ₦500 via Paystack
+                  </button>
                 </div>
               ) : null}
 
