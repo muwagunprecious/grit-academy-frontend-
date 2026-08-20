@@ -60,15 +60,17 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        const storedRefreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
         const response = await axios.post(
           `${API_URL}/auth/refresh`,
-          {},
+          { refreshToken: storedRefreshToken },
           { withCredentials: true }
         );
 
-        const { accessToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
         if (typeof window !== 'undefined') {
-          localStorage.setItem('accessToken', accessToken);
+          if (accessToken) localStorage.setItem('accessToken', accessToken);
+          if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
         }
 
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;

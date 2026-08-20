@@ -38,9 +38,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await api.post('/auth/login', credentials);
-      const { user, accessToken } = response.data.data;
+      const { user, accessToken, refreshToken } = response.data.data;
       
-      localStorage.setItem('accessToken', accessToken);
+      if (accessToken) localStorage.setItem('accessToken', accessToken);
+      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
       set({ user, isAuthenticated: true, isLoading: false });
       return user;
     } catch (err: any) {
@@ -54,9 +55,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await api.post('/auth/register', data);
-      const { user, accessToken } = response.data.data;
+      const { user, accessToken, refreshToken } = response.data.data;
 
-      localStorage.setItem('accessToken', accessToken);
+      if (accessToken) localStorage.setItem('accessToken', accessToken);
+      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
       set({ user, isAuthenticated: true, isLoading: false });
       return user;
     } catch (err: any) {
@@ -74,6 +76,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.warn('Logout request failed, clearing local state anyway');
     } finally {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       set({ user: null, isAuthenticated: false, isLoading: false });
       if (typeof window !== 'undefined') {
         window.location.href = '/';
