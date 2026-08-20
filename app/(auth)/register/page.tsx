@@ -281,7 +281,7 @@ export default function RegisterPage() {
                   <input
                     type="text" value={form.referralCode}
                     onChange={(e) => setForm({ ...form, referralCode: e.target.value })}
-                    placeholder="e.g. hydrogen"
+                    placeholder="Enter referral code"
                     style={{
                       width: '100%', height: 44, paddingLeft: 38, paddingRight: 12,
                       borderRadius: 10, border: '1.5px solid var(--slate-200)',
