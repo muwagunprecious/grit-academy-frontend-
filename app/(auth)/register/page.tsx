@@ -20,8 +20,9 @@ export default function RegisterPage() {
       setError('Passwords do not match.');
       return;
     }
-    if (form.referralCode.trim() !== '' && form.referralCode.trim().toLowerCase() !== 'hydrogen') {
-      setError('Invalid referral code. Only "hydrogen" is accepted.');
+    const ALLOWED_REFERRAL_CODES = ['hydrogen', 'ethyl'];
+    if (form.referralCode.trim() !== '' && !ALLOWED_REFERRAL_CODES.includes(form.referralCode.trim().toLowerCase())) {
+      setError('Invalid referral code. Please check and try again.');
       return;
     }
     setLoading(true);
