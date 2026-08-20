@@ -281,38 +281,72 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                   </div>
 
-                  <button
-                    onClick={async () => {
-                      try {
-                        const testsRes = await api.get('/tests');
-                        const tests = testsRes.data?.data?.tests || [];
-                        const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const testsRes = await api.get('/tests');
+                          const tests = testsRes.data?.data?.tests || [];
+                          const targetTestId = tests[0]?.id || 'cmrus90cf004nc1h0ezrn027p';
 
-                        const payRes = await api.post('/payments/initialize', { testId: targetTestId });
-                        const authUrl = payRes.data?.data?.authorization_url;
-                        if (authUrl) {
-                          window.location.href = authUrl;
+                          const payRes = await api.post('/payments/initialize', { testId: targetTestId });
+                          const authUrl = payRes.data?.data?.authorization_url;
+                          if (authUrl) {
+                            window.location.href = authUrl;
+                          }
+                        } catch (err: any) {
+                          setNotifyModal({
+                            open: true,
+                            title: 'Payment Error',
+                            message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
+                            type: 'error',
+                          });
                         }
-                      } catch (err: any) {
-                        setNotifyModal({
-                          open: true,
-                          title: 'Payment Error',
-                          message: err.response?.data?.message || 'Payment initialization failed. Please try again.',
-                          type: 'error',
-                        });
-                      }
-                    }}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 8,
-                      height: 42, padding: '0 20px', borderRadius: 10, border: 'none',
-                      background: '#0F172A', color: 'white', fontSize: 13, fontWeight: 800,
-                      cursor: 'pointer', boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
-                      transition: 'all 0.15s', whiteSpace: 'nowrap',
-                    }}
-                  >
-                    <CreditCard style={{ width: 15, height: 15 }} />
-                    Pay ₦500 via Paystack
-                  </button>
+                      }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        height: 42, padding: '0 20px', borderRadius: 10, border: 'none',
+                        background: '#0F172A', color: 'white', fontSize: 13, fontWeight: 800,
+                        cursor: 'pointer', boxShadow: '0 4px 12px rgba(15,23,42,0.15)',
+                        transition: 'all 0.15s', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <CreditCard style={{ width: 15, height: 15 }} />
+                      Pay ₦500 via Paystack
+                    </button>
+
+                    <button
+                      onClick={async () => {
+                        try {
+                          await api.post('/payments/sync-pending');
+                          await checkAuth();
+                          setNotifyModal({
+                            open: true,
+                            title: 'Checking Payment',
+                            message: 'Payment verification complete. If your payment was successful, your account access is now unlocked!',
+                            type: 'success',
+                          });
+                        } catch (err: any) {
+                          setNotifyModal({
+                            open: true,
+                            title: 'Verification Error',
+                            message: err.response?.data?.message || 'Verification failed. Please try again.',
+                            type: 'error',
+                          });
+                        }
+                      }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        height: 42, padding: '0 16px', borderRadius: 10,
+                        border: '1.5px solid #CBD5E1', background: '#FFFFFF', color: '#334155',
+                        fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                        transition: 'all 0.15s', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <CheckCircle2 style={{ width: 14, height: 14, color: '#16A34A' }} />
+                      Already Paid? Verify Access
+                    </button>
+                  </div>
                 </div>
               ) : null}
 
