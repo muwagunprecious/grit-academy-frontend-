@@ -18,8 +18,12 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    const cleanForm = {
+      email: form.email.trim(),
+      password: form.password.trim(),
+    };
     try {
-      const user = await login(form);
+      const user = await login(cleanForm);
       const targetPath = (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? '/admin' : '/dashboard';
       if (typeof window !== 'undefined') {
         window.location.href = targetPath;
