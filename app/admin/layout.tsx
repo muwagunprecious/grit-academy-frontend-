@@ -36,13 +36,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    checkAuth().then((currentUser) => {
-      if (!currentUser) router.replace('/login');
-      else if (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')
-        router.replace('/dashboard');
-      else setChecking(false);
-    });
-  }, [router, checkAuth]);
+    checkAuth()
+      .then((currentUser) => {
+        if (!currentUser) {
+          router.replace('/login');
+        } else if (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
+          router.replace('/dashboard');
+        } else {
+          setChecking(false);
+        }
+      })
+      .catch(() => {
+        setChecking(false);
+        router.replace('/login');
+      });
+  }, []);
 
   if (checking || isLoading) {
     return (

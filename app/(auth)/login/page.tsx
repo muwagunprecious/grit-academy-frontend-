@@ -20,11 +20,15 @@ export default function LoginPage() {
     setError('');
     try {
       const user = await login(form);
-      router.push(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? '/admin' : '/dashboard');
+      const targetPath = (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') ? '/admin' : '/dashboard';
+      if (typeof window !== 'undefined') {
+        window.location.href = targetPath;
+      } else {
+        router.push(targetPath);
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
-    } finally {
       setLoading(false);
+      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
     }
   };
 
