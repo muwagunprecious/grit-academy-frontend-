@@ -273,10 +273,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>
-                        Platform Access Locked — ₦500 One-Time Fee Required
+                        Platform Access Locked — ₦1,010 One-Time Fee Required
                       </div>
                       <p style={{ fontSize: 12, color: '#64748B', margin: '3px 0 0', fontWeight: 500, lineHeight: 1.5 }}>
-                        Pay a one-time ₦500 fee via Paystack to unlock all 11 subject CBT practice tests, standard JAMB/WAEC packages, and AI explanation features.
+                        Pay a one-time ₦1,010 fee via Paystack to unlock all 11 subject CBT practice tests, standard JAMB/WAEC packages, and AI explanation features.
                       </p>
                     </div>
                   </div>
@@ -312,7 +312,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       }}
                     >
                       <CreditCard style={{ width: 15, height: 15 }} />
-                      Pay ₦500 via Paystack
+                      Pay ₦1,010 via Paystack
                     </button>
 
                     <button

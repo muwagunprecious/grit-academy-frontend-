@@ -195,7 +195,7 @@ export default function DashboardOverview() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: user?.hasPaidAccessFee ? '#059669' : '#DC2626' }} />
             <span style={{ fontSize: 14, fontWeight: 900, color: '#0F172A' }}>
-              {user?.hasPaidAccessFee ? 'Full Access Unlocked' : '₦500 Access Fee Required'}
+              {user?.hasPaidAccessFee ? 'Full Access Unlocked' : '₦1,010 Access Fee Required'}
             </span>
           </div>
           <div style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>

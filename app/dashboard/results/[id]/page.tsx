@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import api from '../../../../lib/api';
 import DiagramModal from '../../../components/DiagramModal';
+import MathText from '../../../components/MathText';
 
 interface Option        { id: string; text: string; isCorrect?: boolean; }
 interface QuestionDetail {
@@ -307,7 +308,9 @@ export default function ResultsPage() {
                     {idx + 1}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-800)', lineHeight: 1.6, margin: '0 0 8px' }}>{q.text}</p>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-800)', lineHeight: 1.6, margin: '0 0 8px' }}>
+                      <MathText text={q.text} />
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 10, fontWeight: 800, color: statusCfg.badgeColor, background: statusCfg.badgeBg, padding: '3px 9px', borderRadius: 20 }}>
                         {statusCfg.badgeLabel}
@@ -396,7 +399,7 @@ export default function ResultsPage() {
                               fontSize: 10, fontWeight: 900,
                             }}>{opt.id}</div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 12 }}>{opt.text}</div>
+                              <div style={{ fontSize: 12 }}><MathText text={opt.text} /></div>
                               <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
                                 {isStudentPick && (
                                   <span style={{ fontSize: 9, fontWeight: 800, background: '#1E293B', color: 'white', padding: '2px 6px', borderRadius: 4 }}>Your Pick</span>

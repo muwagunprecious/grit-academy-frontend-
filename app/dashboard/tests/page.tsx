@@ -128,8 +128,21 @@ export default function TestsPage() {
     }
   };
 
-  const handleStartSoloPractice = async (subjectId: string) => {
+  const handleStartSoloPractice = async (subjectName: string, subjectId: string) => {
     if (isLocked) { handlePay(); return; }
+    const sName = subjectName.toLowerCase();
+    let testId = '';
+    if (sName.includes('gov')) testId = 'groq-ai-hard-government-2026';
+    else if (sName.includes('lit')) testId = 'groq-ai-hard-literature-2026';
+    else if (sName.includes('eng') || sName.includes('comm')) testId = 'groq-ai-hard-english-2026';
+    else if (sName.includes('econ')) testId = 'groq-ai-hard-economics-2026';
+    else if (sName.includes('math')) testId = 'groq-ai-hard-mathematics-2026';
+
+    if (testId) {
+      router.push(`/exam/${testId}`);
+      return;
+    }
+
     try {
       const res = await api.post('/attempts/custom', {
         subjectIds: [subjectId],
@@ -149,16 +162,7 @@ export default function TestsPage() {
 
   const handleStartPackage = async (packageId: string) => {
     if (isLocked) { handlePay(); return; }
-    setStartingPackage(packageId);
-    setPackageError('');
-    try {
-      const res = await api.post('/attempts/start', { testId: packageId });
-      router.push(`/exam?attemptId=${res.data.data.attemptId}`);
-    } catch (err: any) {
-      setPackageError(err.response?.data?.message || 'Failed to start test package.');
-    } finally {
-      setStartingPackage(null);
-    }
+    router.push(`/exam/${packageId}`);
   };
 
   return (
@@ -213,7 +217,7 @@ export default function TestsPage() {
               }}
             >
               {isLocked ? <Lock style={{ width: 15, height: 15 }} /> : <Play style={{ width: 15, height: 15, fill: '#0F172A' }} />}
-              {isLocked ? '🔒 Pay ₦500 to Unlock Custom Exam' : 'Build Custom CBT Exam'}
+              {isLocked ? '🔒 Pay ₦1,010 to Unlock Custom Exam' : 'Build Custom CBT Exam'}
             </button>
           </div>
 
@@ -279,7 +283,7 @@ export default function TestsPage() {
                   </span>
                   {isLocked && (
                     <span style={{ fontSize: 10, fontWeight: 800, color: '#DC2626', background: '#FEF2F2', padding: '2px 8px', borderRadius: 4, border: '1px solid rgba(220,38,38,0.15)' }}>
-                      🔒 Locked (₦500)
+                      🔒 Locked (₦1,010)
                     </span>
                   )}
                 </div>
@@ -292,7 +296,7 @@ export default function TestsPage() {
                 </div>
 
                 <button
-                  onClick={() => handleStartSoloPractice(sub.id)}
+                  onClick={() => handleStartSoloPractice(sub.name, sub.id)}
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     height: 38, borderRadius: 8, border: 'none',
@@ -344,7 +348,7 @@ export default function TestsPage() {
                     {pkg.subject || 'Full Mock'}
                   </span>
                   <span style={{ fontSize: 12, fontWeight: 900, color: '#059669' }}>
-                    ₦500.00 Access
+                    ₦1,010.00 Access
                   </span>
                 </div>
 
@@ -373,7 +377,7 @@ export default function TestsPage() {
                   {startingPackage === pkg.id ? (
                     <><Loader2 style={{ width: 14, height: 14, animation: 'spin 0.7s linear infinite' }} /> Starting...</>
                   ) : isLocked ? (
-                    <><Lock style={{ width: 13, height: 13 }} /> 🔒 Pay ₦500 to Unlock</>
+                    <><Lock style={{ width: 13, height: 13 }} /> 🔒 Pay ₦1,010 to Unlock</>
                   ) : (
                     <><Play style={{ width: 13, height: 13, fill: 'white' }} /> Start Full Test</>
                   )}
@@ -508,7 +512,7 @@ export default function TestsPage() {
               {startingExam ? (
                 <><Loader2 style={{ width: 16, height: 16, animation: 'spin 0.7s linear infinite' }} /> Launching Exam...</>
               ) : isLocked ? (
-                <><Lock style={{ width: 15, height: 15 }} /> Pay ₦500 via Paystack to Unlock Exam</>
+                <><Lock style={{ width: 15, height: 15 }} /> Pay ₦1,010 via Paystack to Unlock Exam</>
               ) : (
                 <><Play style={{ width: 15, height: 15, fill: selectedSubjectIds.length > 0 ? 'white' : '#94A3B8' }} />
                   {selectedSubjectIds.length === 0 ? 'Select at least 1 subject' : `Start CBT Exam — ${selectedSubjectIds.length} Subject${selectedSubjectIds.length > 1 ? 's' : ''}`}

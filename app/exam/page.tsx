@@ -18,6 +18,7 @@ import {
 import api from '../../lib/api';
 import DiagramModal from '../components/DiagramModal';
 import PassageModal from '../components/PassageModal';
+import MathText from '../components/MathText';
 
 interface Option   { id: string; text: string; }
 interface Question { id: string; order: number; text: string; passage?: string | null; imageUrl?: string | null; type: string; options: Option[]; subjectId: string; subjectName?: string; topic?: string; }
@@ -65,7 +66,10 @@ function ExamContent() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!attemptId) { router.push('/dashboard/tests'); return; }
+    if (!attemptId) {
+      setLoading(false);
+      return;
+    }
     api.get(`/attempts/${attemptId}`)
       .then((res) => {
         const attempt = res.data.data.result;
@@ -82,7 +86,7 @@ function ExamContent() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [attemptId, router]);
+  }, [attemptId]);
 
   const handleSubmit = useCallback(async () => {
     if (!attemptId) return;
@@ -101,14 +105,184 @@ function ExamContent() {
   }, [attemptId, answers, totalDurationSecs, timeLeft, router]);
 
   useEffect(() => {
-    if (loading || timeLeft <= 0) return;
+    if (!attemptId || loading || timeLeft <= 0) return;
     timerRef.current = setInterval(() => {
       setTimeLeft((t) => { if (t <= 1) { clearInterval(timerRef.current!); handleSubmit(); return 0; } return t - 1; });
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [loading, timeLeft, handleSubmit]);
+  }, [attemptId, loading, timeLeft, handleSubmit]);
 
   const formatTime = (secs: number) => `${Math.floor(secs / 60).toString().padStart(2, '0')}:${(secs % 60).toString().padStart(2, '0')}`;
+
+  // ── Subject Hub View when no attemptId is active ────────────
+  if (!attemptId) {
+    const subjectExams = [
+      {
+        id: 'groq-ai-hard-government-2026',
+        name: 'Government',
+        icon: '🏛️',
+        badge: '24 QUESTIONS',
+        time: '30 Mins',
+        color: '#3B82F6',
+        bgGradient: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(15,23,42,0.6))',
+        desc: 'Arms of Government, Pre-colonial Rule, Indirect Rule, International Relations & Foreign Policy.',
+      },
+      {
+        id: 'groq-ai-hard-literature-2026',
+        name: 'Literature in English',
+        icon: '📖',
+        badge: '36 QUESTIONS',
+        time: '45 Mins',
+        color: '#EC4899',
+        bgGradient: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(15,23,42,0.6))',
+        desc: 'Literary Devices, Dramatic Techniques, Antony & Cleopatra, Prescribed African/Non-African Works.',
+      },
+      {
+        id: 'groq-ai-hard-english-2026',
+        name: 'Communication in English',
+        icon: '💬',
+        badge: '32 QUESTIONS',
+        time: '40 Mins',
+        color: '#10B981',
+        bgGradient: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(15,23,42,0.6))',
+        desc: 'Rules of Concord, Morphemes, Phonetics, Speech Organs, Clauses & Punctuation Marks.',
+      },
+      {
+        id: 'groq-ai-hard-economics-2026',
+        name: 'Economics',
+        icon: '📈',
+        badge: '28 QUESTIONS',
+        time: '35 Mins',
+        color: '#F59E0B',
+        bgGradient: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(15,23,42,0.6))',
+        desc: 'Consumer Behaviour, Market Structures, Inflation, Public Finance & International Trade.',
+      },
+      {
+        id: 'groq-ai-hard-mathematics-2026',
+        name: 'Mathematics',
+        icon: '📐',
+        badge: '26 QUESTIONS',
+        time: '33 Mins',
+        color: '#8B5CF6',
+        bgGradient: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(15,23,42,0.6))',
+        desc: 'Integration, Chain Rule, Implicit Differentiation, Logarithms & Quadratic Equations.',
+      },
+      {
+        id: 'groq-ai-hard-master-test-2026',
+        name: '🔥 Groq AI Master Challenge',
+        icon: '⚡',
+        badge: '146 QUESTIONS',
+        time: '180 Mins',
+        color: '#EF4444',
+        bgGradient: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(15,23,42,0.8))',
+        desc: 'Full 5-Subject Combined Very Hard JAMB / WAEC Special Edition Master Challenge.',
+      },
+    ];
+
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#090D16', color: '#F8FAFC',
+        padding: '48px 24px', fontFamily: 'system-ui, -apple-system, sans-serif',
+      }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 36 }}>
+
+          {/* Header */}
+          <div style={{ textAlign: 'center', maxWidth: 700, margin: '0 auto' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 16px', borderRadius: 20,
+              background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)',
+              fontSize: 11, fontWeight: 800, color: '#60A5FA', letterSpacing: '0.08em',
+              textTransform: 'uppercase', marginBottom: 16,
+            }}>
+              ✨ 2026 Groq AI Special CBT Series
+            </div>
+
+            <h1 style={{ fontSize: 34, fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 12px', color: '#FFFFFF' }}>
+              Subject-by-Subject CBT Practice Portal
+            </h1>
+            <p style={{ fontSize: 14, color: '#94A3B8', lineHeight: 1.6, margin: 0 }}>
+              Each subject has been separated into its own dedicated examination box with exact question counts, timed limits, and instant LaTeX math solutions.
+            </p>
+          </div>
+
+          {/* Subject Exam Boxes Grid */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20,
+          }}>
+            {subjectExams.map((item) => (
+              <div
+                key={item.id}
+                style={{
+                  background: item.bgGradient,
+                  border: `1px solid ${item.color}40`,
+                  borderRadius: 20,
+                  padding: '28px 26px',
+                  display: 'flex', flexDirection: 'column', gap: 16,
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: `0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 ${item.color}30`,
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Header Badge */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: 32 }}>{item.icon}</div>
+                  <div style={{
+                    fontSize: 10, fontWeight: 900, letterSpacing: '0.06em',
+                    padding: '4px 12px', borderRadius: 20,
+                    background: `${item.color}25`, color: item.color,
+                    border: `1px solid ${item.color}50`,
+                  }}>
+                    {item.badge}
+                  </div>
+                </div>
+
+                {/* Title & Desc */}
+                <div>
+                  <h3 style={{ fontSize: 20, fontWeight: 900, color: '#FFFFFF', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
+                    {item.name}
+                  </h3>
+                  <p style={{ fontSize: 13, color: '#CBD5E1', lineHeight: 1.55, margin: 0, fontWeight: 400 }}>
+                    {item.desc}
+                  </p>
+                </div>
+
+                {/* Stats */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 18,
+                  padding: '10px 14px', borderRadius: 12,
+                  background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)',
+                  fontSize: 12, color: '#94A3B8', fontWeight: 600, marginTop: 'auto',
+                }}>
+                  <span>⏱ <strong style={{ color: '#FFFFFF' }}>{item.time}</strong></span>
+                  <span>⚡ Difficulty: <strong style={{ color: '#F59E0B' }}>VERY HARD</strong></span>
+                </div>
+
+                {/* Launch Button */}
+                <button
+                  onClick={() => router.push(`/exam/${item.id}`)}
+                  style={{
+                    height: 44, borderRadius: 12, border: 'none',
+                    background: item.color,
+                    color: '#FFFFFF', fontSize: 13, fontWeight: 800,
+                    cursor: 'pointer', display: 'flex', alignItems: 'center',
+                    justify: 'center', gap: 8,
+                    boxShadow: `0 4px 16px ${item.color}50`,
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Start {item.name} Exam →
+                </button>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF', flexDirection: 'column', gap: 16 }}>
@@ -328,7 +502,7 @@ function ExamContent() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
               }}>
                 <p style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', lineHeight: 1.7, margin: 0 }}>
-                  {currentQuestion.text}
+                  <MathText text={currentQuestion.text} />
                 </p>
 
                 {/* Additional Buttons */}
@@ -399,7 +573,7 @@ function ExamContent() {
                       <span style={{
                         fontSize: 14, fontWeight: isSelected ? 700 : 500, lineHeight: 1.6, paddingTop: 4,
                         color: '#0F172A',
-                      }}>{opt.text}</span>
+                      }}><MathText text={opt.text} /></span>
                     </button>
                   );
                 })}
