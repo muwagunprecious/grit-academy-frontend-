@@ -268,7 +268,7 @@ function ExamContent() {
                     background: item.color,
                     color: '#FFFFFF', fontSize: 13, fontWeight: 800,
                     cursor: 'pointer', display: 'flex', alignItems: 'center',
-                    justify: 'center', gap: 8,
+                    justifyContent: 'center', gap: 8,
                     boxShadow: `0 4px 16px ${item.color}50`,
                     transition: 'all 0.15s ease',
                   }}
