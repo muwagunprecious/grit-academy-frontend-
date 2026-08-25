@@ -355,75 +355,7 @@ export default function TestsPage() {
         )}
       </div>
 
-      {/* ── Section 2: Standard Test Packages ────────────────── */}
-      {packages.length > 0 && (
-        <div>
-          <div style={{ marginBottom: 18 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em', margin: 0 }}>
-              Full Standard CBT Packages
-            </h2>
-            <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0', fontWeight: 500 }}>
-              Complete mock test suites designed according to official exam standards
-            </p>
-          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }} className="tests-grid">
-            {packages.map((pkg) => (
-              <div
-                key={pkg.id}
-                style={{
-                  background: '#FFFFFF',
-                  borderRadius: 16,
-                  border: '1px solid #E2E8F0',
-                  padding: '24px',
-                  display: 'flex', flexDirection: 'column', gap: 14,
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#475569', background: '#F1F5F9', padding: '4px 10px', borderRadius: 6, border: '1px solid #E2E8F0' }}>
-                    {pkg.subject || 'Full Mock'}
-                  </span>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: '#059669' }}>
-                    ₦1,010.00 Access
-                  </span>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#0F172A' }}>{pkg.title}</div>
-                  <div style={{ fontSize: 12, color: '#64748B', marginTop: 4, lineHeight: 1.5, fontWeight: 500 }}>{pkg.description}</div>
-                </div>
-
-                <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#64748B', fontWeight: 600 }}>
-                  <span>⏱ {pkg.duration} min</span>
-                  <span>📄 {pkg.questionCount} Questions</span>
-                </div>
-
-                <button
-                  onClick={() => handleStartPackage(pkg.id)}
-                  disabled={startingPackage === pkg.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    height: 40, borderRadius: 8, border: 'none',
-                    background: isLocked ? '#FEF2F2' : '#0F172A',
-                    color: isLocked ? '#DC2626' : 'white',
-                    fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                    transition: 'all 0.15s ease', marginTop: 'auto',
-                  }}
-                >
-                  {startingPackage === pkg.id ? (
-                    <><Loader2 style={{ width: 14, height: 14, animation: 'spin 0.7s linear infinite' }} /> Starting...</>
-                  ) : isLocked ? (
-                    <><Lock style={{ width: 13, height: 13 }} /> 🔒 Pay ₦1,010 to Unlock</>
-                  ) : (
-                    <><Play style={{ width: 13, height: 13, fill: 'white' }} /> Start Full Test</>
-                  )}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ── Custom Exam Builder Modal ────────────────────── */}
       {showModal && (
