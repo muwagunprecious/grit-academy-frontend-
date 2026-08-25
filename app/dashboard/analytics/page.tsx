@@ -8,6 +8,8 @@ import {
   CheckCircle2, XCircle, ArrowRight, Sparkles, Activity,
 } from 'lucide-react';
 import api from '../../../lib/api';
+import { useAuthStore } from '../../../stores/auth.store';
+import { getSubjectsForFaculty } from '../../components/FacultySelectionModal';
 
 /* ─── Types matching backend response ─── */
 interface Stats {
@@ -146,6 +148,7 @@ function StatCard({ icon, label, value, sub, accent }: { icon: string; label: st
 ══════════════════════════════════════════════════ */
 export default function AnalyticsPage() {
   const router  = useRouter();
+  const { user } = useAuthStore();
   const [data,    setData]    = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
@@ -295,6 +298,24 @@ export default function AnalyticsPage() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {subjectBreakdown
+                .filter(s => {
+                  if (!user?.faculty) return true;
+                  const allowed = getSubjectsForFaculty(user.faculty);
+                  if (!allowed || allowed.length === 0) return true;
+
+                  const sNorm = s.subjectName.trim().toLowerCase();
+                  return allowed.some(a => {
+                    const aNorm = a.trim().toLowerCase();
+                    if (sNorm.includes(aNorm) || aNorm.includes(sNorm)) return true;
+                    if (aNorm === 'english' && (sNorm.includes('english') || sNorm.includes('communication'))) return true;
+                    if (aNorm === 'math' && (sNorm.includes('math') || sNorm.includes('mathematics'))) return true;
+                    if (aNorm === 'crs' && (sNorm.includes('crs') || sNorm.includes('christian'))) return true;
+                    if (aNorm === 'literature' && (sNorm.includes('literature') || sNorm.includes('lit'))) return true;
+                    if (aNorm === 'gov' && (sNorm.includes('government') || sNorm.includes('gov'))) return true;
+                    if (aNorm === 'econ' && (sNorm.includes('economics') || sNorm.includes('econ'))) return true;
+                    return false;
+                  });
+                })
                 .sort((a, b) => b.percentage - a.percentage)
                 .map((sub) => {
                   const color = subjectColor(sub.subjectName);
