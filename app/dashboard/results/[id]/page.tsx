@@ -440,7 +440,7 @@ export default function ResultsPage() {
 
                         {aiExplanations[q.id].simpleExplanation && (
                           <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(124,58,237,0.1)', fontSize: 12, fontWeight: 700, color: '#4C1D95' }}>
-                            💡 <strong>Core Concept:</strong> {aiExplanations[q.id].simpleExplanation}
+                            💡 <strong>Core Concept:</strong> <MathText text={aiExplanations[q.id].simpleExplanation} />
                           </div>
                         )}
 
@@ -449,21 +449,21 @@ export default function ResultsPage() {
                             <div style={{ fontSize: 11, fontWeight: 800, color: '#6D28D9', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
                               🔍 Step-by-Step Solution:
                             </div>
-                            <p style={{ fontSize: 13, color: 'var(--slate-700)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-line' }}>
-                              {aiExplanations[q.id].detailedExplanation}
-                            </p>
+                            <div style={{ fontSize: 13, color: 'var(--slate-700)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-line' }}>
+                              <MathText text={aiExplanations[q.id].detailedExplanation} />
+                            </div>
                           </div>
                         )}
 
                         {aiExplanations[q.id].examTip && (
                           <div style={{ padding: '10px 14px', borderRadius: 10, background: '#ECFDF5', border: '1px solid rgba(5,150,105,0.2)', fontSize: 12, color: '#065F46' }}>
-                            🎯 <strong>Exam Tip:</strong> {aiExplanations[q.id].examTip}
+                            🎯 <strong>Exam Tip:</strong> <MathText text={aiExplanations[q.id].examTip} />
                           </div>
                         )}
 
                         {aiExplanations[q.id].memoryTrick && aiExplanations[q.id].memoryTrick !== 'N/A' && (
                           <div style={{ padding: '10px 14px', borderRadius: 10, background: '#FFFBEB', border: '1px solid rgba(217,119,6,0.2)', fontSize: 12, color: '#92400E' }}>
-                            🧠 <strong>Memory Trick:</strong> {aiExplanations[q.id].memoryTrick}
+                            🧠 <strong>Memory Trick:</strong> <MathText text={aiExplanations[q.id].memoryTrick} />
                           </div>
                         )}
                       </div>

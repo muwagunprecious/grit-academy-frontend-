@@ -17,30 +17,22 @@ interface MathTextProps {
 function autoWrapLatex(input: string): string {
   if (!input) return '';
 
-  // If already contains standard LaTeX delimiters, return as-is
-  if (input.includes('\\(') || input.includes('\\[') || input.includes('$')) {
-    return input;
-  }
+  let cleaned = input;
 
-  // Common LaTeX commands / symbols that signal math content
-  const hasLatexCmd = /\\[a-zA-Z]+/.test(input);
-  const hasExponent = /[a-zA-Z0-9]\^[0-9a-zA-Z{}]/.test(input);
+  // Convert raw missing backslashes in common math commands (e.g. int_0 -> \int_0, infty -> \infty, Gamma -> \Gamma, zeta -> \zeta)
+  cleaned = cleaned
+    .replace(/(?<!\\)\b(int_0|int_|infty|Gamma|zeta|alpha|beta|theta|lambda|sigma|omega|partial|sum_|prod_)/g, '\\$1');
 
-  if (!hasLatexCmd && !hasExponent) {
-    return input;
-  }
-
-  // If the entire text is a short math expression (e.g. "\frac{1}{2}" or "\sqrt{2}" or "f(x)=\ln x - \frac{x}{2}")
-  // wrap the whole thing if it doesn't contain sentence punctuation
-  const sentences = input.trim().split(/(?<=[.!?])\s+/);
-  
-  return input.replace(/((?:[a-zA-Z0-9_\(\)\[\]\{\}\+\-\*\/=,;\s]*\\[a-zA-Z]+(?:\{[^}]*\}|\s|[0-9a-zA-Z_\^\-\+\=\(\)])*)+|(?:[a-zA-Z0-9_\(\)\[\]\{\}]+\^[0-9a-zA-Z_\{\}]+))/g, (match) => {
-    const trimmed = match.trim();
-    if (!trimmed || trimmed.length < 2) return match;
-    // Don't wrap if it's just plain English words without math symbols
-    if (!/\\|\^|_|=/.test(trimmed)) return match;
-    return ` \\(${trimmed}\\) `;
+  // Convert parenthesized math expressions like (int_0^{...}...) or (s=4) or (x^3) or (x) into \(...\)
+  cleaned = cleaned.replace(/\(([^()\n]*?(?:\\[a-zA-Z]+|\^|_|=)[^()\n]*?)\)/g, (match, inner) => {
+    const trimmed = inner.trim();
+    if (/\\|\^|_|=/.test(trimmed)) {
+      return ` \\(${trimmed}\\) `;
+    }
+    return match;
   });
+
+  return cleaned;
 }
 
 export default function MathText({ text, className = '', style }: MathTextProps) {
