@@ -18,11 +18,13 @@ import {
   ShieldCheck,
   Ticket,
   CheckCircle2,
+  GraduationCap,
 } from 'lucide-react';
 import { useAuthStore } from '../../stores/auth.store';
 import api from '../../lib/api';
 
 import NotificationModal from '../components/NotificationModal';
+import FacultySelectionModal from '../components/FacultySelectionModal';
 
 const NAV_ITEMS = [
   { label: 'Overview',       href: '/dashboard',           icon: LayoutDashboard },
@@ -40,6 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted,     setMounted]     = useState(false);
   const [scrolled,    setScrolled]    = useState(false);
+  const [showFacultyModal, setShowFacultyModal] = useState(false);
   const [notifyModal, setNotifyModal] = useState<{ open: boolean; title: string; message: string; type?: 'error' | 'info' | 'success' }>({
     open: false, title: '', message: '',
   });
@@ -47,6 +50,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMounted(true);
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === 'STUDENT' && !user?.faculty) {
+      setShowFacultyModal(true);
+    }
+  }, [user]);
 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
@@ -230,6 +240,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {user?.role === 'STUDENT' && (
+              <button
+                onClick={() => setShowFacultyModal(true)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '5px 12px', borderRadius: 20,
+                  background: '#0F172A', color: 'white',
+                  fontSize: 11, fontWeight: 800, border: 'none',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  boxShadow: '0 2px 8px rgba(15,23,42,0.15)',
+                }}
+              >
+                <GraduationCap style={{ width: 13, height: 13, color: '#10B981' }} />
+                <span>{user?.faculty ? user.faculty : 'Select Faculty'}</span>
+              </button>
+            )}
+
             <div className="ai-badge" style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '4px 10px', borderRadius: 20,

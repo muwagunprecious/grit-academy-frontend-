@@ -41,6 +41,8 @@ interface TestPackage {
   difficulty: 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
 }
 
+import { getSubjectsForFaculty } from '../../components/FacultySelectionModal';
+
 const DURATION_STEPS = [5, 10, 15, 20, 25, 30];
 
 export default function TestsPage() {
@@ -64,6 +66,25 @@ export default function TestsPage() {
   const [packageError, setPackageError] = useState('');
   const [notifyModal, setNotifyModal] = useState<{ open: boolean; title: string; message: string; type?: 'error' | 'info' | 'success' }>({
     open: false, title: '', message: '',
+  });
+
+  const facultySubjects = subjects.filter((sub) => {
+    if (!user?.faculty) return true;
+    const allowed = getSubjectsForFaculty(user.faculty);
+    if (!allowed || allowed.length === 0) return true;
+
+    const sNorm = sub.name.trim().toLowerCase();
+    return allowed.some(a => {
+      const aNorm = a.trim().toLowerCase();
+      if (sNorm.includes(aNorm) || aNorm.includes(sNorm)) return true;
+      if (aNorm === 'english' && (sNorm.includes('english') || sNorm.includes('communication'))) return true;
+      if (aNorm === 'math' && (sNorm.includes('math') || sNorm.includes('mathematics'))) return true;
+      if (aNorm === 'crs' && (sNorm.includes('crs') || sNorm.includes('christian'))) return true;
+      if (aNorm === 'literature' && (sNorm.includes('literature') || sNorm.includes('lit'))) return true;
+      if (aNorm === 'gov' && (sNorm.includes('government') || sNorm.includes('gov'))) return true;
+      if (aNorm === 'econ' && (sNorm.includes('economics') || sNorm.includes('econ'))) return true;
+      return false;
+    });
   });
 
   const handlePay = async () => {
@@ -250,7 +271,7 @@ export default function TestsPage() {
             </p>
           </div>
           <span style={{ fontSize: 12, fontWeight: 800, color: '#64748B', background: '#F1F5F9', padding: '4px 12px', borderRadius: 20, border: '1px solid #E2E8F0' }}>
-            {subjects.length} Available Subjects
+            {facultySubjects.length} Available Subjects {user?.faculty ? `(${user.faculty})` : ''}
           </span>
         </div>
 
@@ -260,7 +281,7 @@ export default function TestsPage() {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="tests-grid">
-            {subjects.map((sub) => (
+            {facultySubjects.map((sub) => (
               <div
                 key={sub.id}
                 style={{

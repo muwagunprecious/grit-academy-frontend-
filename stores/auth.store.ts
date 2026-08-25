@@ -8,6 +8,8 @@ interface User {
   lastName: string;
   role: 'STUDENT' | 'ADMIN' | 'SUPER_ADMIN';
   photo?: string;
+  faculty?: string;
+  referralCode?: string;
   hasPaidAccessFee?: boolean;
 }
 
