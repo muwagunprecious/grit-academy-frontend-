@@ -68,6 +68,12 @@ export default function FacultySelectionModal({ isOpen, onClose, onFacultySaved 
   const [selectedFaculty, setSelectedFaculty] = useState<string>(user?.faculty || '');
   const [saving, setSaving] = useState(false);
 
+  React.useEffect(() => {
+    if (user?.faculty) {
+      setSelectedFaculty(user.faculty);
+    }
+  }, [user?.faculty, isOpen]);
+
   if (!isOpen) return null;
 
   const currentGroup = FACULTY_GROUPS.find(g =>

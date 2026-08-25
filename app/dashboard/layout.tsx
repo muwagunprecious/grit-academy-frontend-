@@ -92,10 +92,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (isFacultyMissing) {
       setShowFacultyModal(true);
-    } else {
+    } else if (user?.faculty && user.faculty.trim() !== '' && user.faculty !== 'null') {
       setShowFacultyModal(false);
     }
-  }, [user, isFacultyMissing]);
+  }, [user?.faculty, isFacultyMissing]);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
@@ -391,11 +391,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {children}
 
               <FacultySelectionModal
-                isOpen={showFacultyModal || isFacultyMissing}
+                isOpen={showFacultyModal}
                 onClose={() => {
                   if (!isFacultyMissing) setShowFacultyModal(false);
                 }}
                 onFacultySaved={async () => {
+                  setShowFacultyModal(false);
                   await checkAuth();
                   setShowFacultyModal(false);
                 }}
