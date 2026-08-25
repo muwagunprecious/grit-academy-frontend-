@@ -92,6 +92,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (isFacultyMissing) {
       setShowFacultyModal(true);
+    } else {
+      setShowFacultyModal(false);
     }
   }, [user, isFacultyMissing]);
 
