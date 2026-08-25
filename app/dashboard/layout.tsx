@@ -60,10 +60,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             await checkAuth();
             setNotifyModal({
               open: true,
-              title: '🎉 Payment Successful!',
-              message: 'Your ₦1,010 access fee has been verified via Paystack. Unlimited platform access is now unlocked!',
+              title: '🎉 Payment Verified!',
+              message: 'Your ₦1,010 platform access fee has been verified via Paystack! Please select your Faculty below to activate your 30-minute exam bundle.',
               type: 'success',
             });
+            setShowFacultyModal(true);
             window.history.replaceState({}, document.title, window.location.pathname);
           })
           .catch((err) => {

@@ -149,36 +149,44 @@ export default function TestsPage() {
     }
   };
 
-  const handleStartSoloPractice = async (subjectName: string, subjectId: string) => {
+  const startCombinedFacultyExam = async () => {
     if (isLocked) { handlePay(); return; }
-    const sName = subjectName.toLowerCase();
-    let testId = '';
-    if (sName.includes('gov')) testId = 'groq-ai-hard-government-2026';
-    else if (sName.includes('lit')) testId = 'groq-ai-hard-literature-2026';
-    else if (sName.includes('eng') || sName.includes('comm')) testId = 'groq-ai-hard-english-2026';
-    else if (sName.includes('econ')) testId = 'groq-ai-hard-economics-2026';
-    else if (sName.includes('math')) testId = 'groq-ai-hard-mathematics-2026';
-
-    if (testId) {
-      router.push(`/exam/${testId}`);
+    
+    const facultySubjectIds = facultySubjects.map(s => s.id);
+    if (facultySubjectIds.length === 0) {
+      setNotifyModal({
+        open: true,
+        title: 'Select Faculty Required',
+        message: 'Please select your Faculty to enable your combined 30-minute CBT exam bundle.',
+        type: 'info',
+      });
       return;
     }
 
+    setStartingExam(true);
     try {
       const res = await api.post('/attempts/custom', {
-        subjectIds: [subjectId],
-        duration: 30,
-        questionsPerSubject: 30,
+        subjectIds: facultySubjectIds,
+        duration: 30, // Strictly 30 minutes total!
+        questionsPerSubject: 20,
       });
       router.push(`/exam?attemptId=${res.data.data.attemptId}`);
     } catch (err: any) {
       setNotifyModal({
         open: true,
-        title: 'Error Starting Exam',
-        message: err.response?.data?.message || 'Failed to start subject practice.',
+        title: 'Exam Initialization',
+        message: err.response?.data?.message || 'Failed to start your 30-minute faculty exam bundle.',
         type: 'error',
       });
+    } finally {
+      setStartingExam(false);
     }
+  };
+
+  const handleStartSoloPractice = async (subjectName: string, subjectId: string) => {
+    if (isLocked) { handlePay(); return; }
+    // User Directive: Students do all attached faculty subjects together in ONE 30-minute exam bundle!
+    await startCombinedFacultyExam();
   };
 
   const handleStartPackage = async (packageId: string) => {
@@ -204,29 +212,22 @@ export default function TestsPage() {
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '4px 12px', borderRadius: 20,
               background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
-              fontSize: 11, fontWeight: 700, color: '#94A3B8',
+              fontSize: 11, fontWeight: 700, color: '#10B981',
               textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16,
             }}>
-              <Sliders style={{ width: 12, height: 12 }} /> CBT Practice Engine
+              <Sliders style={{ width: 12, height: 12 }} /> 30-Minute Combined Faculty Exam Engine
             </div>
 
-            <h1 style={{ fontSize: 30, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.15, margin: '0 0 10px' }}>
-              Custom Practice CBT Exam
+            <h1 style={{ fontSize: 28, fontWeight: 900, color: 'white', letterSpacing: '-0.03em', lineHeight: 1.15, margin: '0 0 10px' }}>
+              {user?.faculty ? `${user.faculty} Exam Bundle` : 'Combined Faculty CBT Exam'}
             </h1>
             <p style={{ fontSize: 13, color: '#94A3B8', lineHeight: 1.6, fontWeight: 400, margin: '0 0 24px' }}>
-              Select up to 5 subjects, customize your time limit up to 30 minutes, and practice under realistic exam conditions.
+              You will take all {facultySubjects.length || 5} subjects attached to your faculty combined in ONE 30-minute exam session.
             </p>
 
             <button
-              onClick={() => {
-                if (isLocked) {
-                  handlePay();
-                  return;
-                }
-                setSelectedSubjectIds([]);
-                setExamError('');
-                setShowModal(true);
-              }}
+              onClick={startCombinedFacultyExam}
+              disabled={startingExam}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 9,
                 height: 44, padding: '0 24px', borderRadius: 10,
@@ -237,8 +238,18 @@ export default function TestsPage() {
                 transition: 'all 0.15s ease',
               }}
             >
-              {isLocked ? <Lock style={{ width: 15, height: 15 }} /> : <Play style={{ width: 15, height: 15, fill: '#0F172A' }} />}
-              {isLocked ? '🔒 Pay ₦1,010 to Unlock Custom Exam' : 'Build Custom CBT Exam'}
+              {startingExam ? (
+                <Loader2 style={{ width: 15, height: 15, animation: 'spin 0.7s linear infinite' }} />
+              ) : isLocked ? (
+                <Lock style={{ width: 15, height: 15 }} />
+              ) : (
+                <Play style={{ width: 15, height: 15, fill: '#0F172A' }} />
+              )}
+              {startingExam
+                ? 'Initializing Bundle...'
+                : isLocked
+                ? '🔒 Pay ₦1,010 to Unlock Exam Bundle'
+                : 'Start 30-Min Combined Faculty Exam'}
             </button>
           </div>
 
@@ -247,14 +258,14 @@ export default function TestsPage() {
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: 16, padding: '20px 24px',
             display: 'flex', flexDirection: 'column', gap: 10,
-            minWidth: 200,
+            minWidth: 220,
           }}>
             <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Engine Specs
+              Faculty Bundle Specs
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>• Up to 5 Subjects</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>• Shuffled 30 Questions/Sub</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>• Step-by-Step AI Solutions</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>• All {facultySubjects.length || 5} Faculty Subjects</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>• Strictly 30 Minutes Total</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>• AI Step-by-Step Solutions</div>
           </div>
         </div>
       </div>
