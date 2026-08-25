@@ -127,6 +127,18 @@ export default function FacultySelectionModal({ isOpen, onClose, onFacultySaved 
           </div>
         </div>
 
+        {/* Mandatory Notice if Faculty not set */}
+        {(!user?.faculty || user?.faculty?.trim() === '' || user?.faculty === 'null') && (
+          <div style={{
+            background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 14,
+            padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
+            fontSize: 12, fontWeight: 700, color: '#991B1B',
+          }}>
+            <Lock style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <span>Faculty Selection Required: Choose your faculty below to unlock your dashboard and activate your 30-minute exam bundle.</span>
+          </div>
+        )}
+
         {/* Faculty Options */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {FACULTY_GROUPS.map((group) => (

@@ -47,9 +47,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     open: false, title: '', message: '',
   });
 
+  const isFacultyMissing =
+    !!user &&
+    (user.role === 'STUDENT' || (user as any).role === undefined) &&
+    (!user.faculty || user.faculty.trim() === '' || user.faculty === 'null');
+
   useEffect(() => {
     setMounted(true);
-    checkAuth();
+    checkAuth().then((u) => {
+      if (u && (u.role === 'STUDENT' || (u as any).role === undefined) && (!u.faculty || u.faculty.trim() === '' || u.faculty === 'null')) {
+        setShowFacultyModal(true);
+      }
+    });
 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
@@ -81,10 +90,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   useEffect(() => {
-    if (user?.role === 'STUDENT' && !user?.faculty) {
+    if (isFacultyMissing) {
       setShowFacultyModal(true);
     }
-  }, [user]);
+  }, [user, isFacultyMissing]);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
@@ -378,6 +387,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               ) : null}
 
               {children}
+
+              <FacultySelectionModal
+                isOpen={showFacultyModal || isFacultyMissing}
+                onClose={() => {
+                  if (!isFacultyMissing) setShowFacultyModal(false);
+                }}
+                onFacultySaved={async () => {
+                  await checkAuth();
+                  setShowFacultyModal(false);
+                }}
+              />
 
               <NotificationModal
                 isOpen={notifyModal.open}
