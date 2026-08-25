@@ -114,6 +114,63 @@ export default function DiagramModal({ isOpen, onClose, questionText, imageUrl }
                 ⚡ <strong>Circuit Reference:</strong> Two Capacitors P (2F) and Q (4F) connected in series to a D.C. Voltage Source.
               </div>
             </div>
+          ) : isCircuitQ ? (
+            /* Custom SVG Schematic for Battery & Resistors (Series/Parallel Circuit) */
+            <div style={{
+              width: '100%', padding: '20px', borderRadius: 16,
+              background: '#0B1120', border: '1px solid rgba(59,130,246,0.2)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
+            }}>
+              <svg width="420" height="220" viewBox="0 0 420 220" style={{ maxWidth: '100%' }}>
+                {/* Main Circuit Wires */}
+                {/* Loop: Battery (left), Series R1 (top left), Parallel R2/R3 (top right) */}
+                <path d="M 50 140 L 50 60 L 130 60" stroke="#60A5FA" strokeWidth="2.5" fill="none" />
+                <path d="M 190 60 L 230 60" stroke="#60A5FA" strokeWidth="2.5" fill="none" />
+                
+                {/* Parallel Branch Split */}
+                <path d="M 230 60 L 230 35 L 260 35 M 320 35 L 350 35 L 350 60" stroke="#60A5FA" strokeWidth="2.5" fill="none" />
+                <path d="M 230 60 L 230 85 L 260 85 M 320 85 L 350 85 L 350 60" stroke="#60A5FA" strokeWidth="2.5" fill="none" />
+                
+                {/* Bottom Wire back to Battery */}
+                <path d="M 350 60 L 350 140 L 50 140" stroke="#60A5FA" strokeWidth="2.5" fill="none" />
+
+                {/* Battery & Internal Resistance (Left Vertical Arm) */}
+                <line x1="40" y1="90" x2="60" y2="90" stroke="#F59E0B" strokeWidth="4" />
+                <line x1="45" y1="102" x2="55" y2="102" stroke="#F59E0B" strokeWidth="2.5" />
+                <text x="32" y="85" fill="#34D399" fontSize="12" fontWeight="bold">+</text>
+                <text x="32" y="112" fill="#F87171" fontSize="12" fontWeight="bold">-</text>
+                <text x="22" y="100" fill="#F59E0B" fontSize="11" fontWeight="bold" textAnchor="end">12 V</text>
+                
+                {/* Internal Resistance r = 0.5 Ω */}
+                <rect x="40" y="115" width="20" height="15" rx="3" fill="#1E293B" stroke="#F59E0B" strokeWidth="1.5" />
+                <text x="70" y="127" fill="#F59E0B" fontSize="10" fontWeight="bold">r = 0.5 Ω</text>
+
+                {/* Series Resistor R1 = 4 Ω */}
+                <rect x="130" y="48" width="60" height="24" rx="4" fill="#1E293B" stroke="#3B82F6" strokeWidth="2" />
+                <text x="160" y="64" fill="#93C5FD" fontSize="11" fontWeight="900" textAnchor="middle">4 Ω</text>
+                <text x="160" y="40" fill="#E2E8F0" fontSize="11" fontWeight="bold" textAnchor="middle">Series Resistor</text>
+
+                {/* Parallel Top Resistor R2 = 2 Ω */}
+                <rect x="260" y="24" width="60" height="22" rx="4" fill="#1E293B" stroke="#10B981" strokeWidth="2" />
+                <text x="290" y="39" fill="#A7F3D0" fontSize="11" fontWeight="900" textAnchor="middle">2 Ω</text>
+
+                {/* Parallel Bottom Resistor R3 = 6 Ω */}
+                <rect x="260" y="74" width="60" height="22" rx="4" fill="#1E293B" stroke="#EC4899" strokeWidth="2" />
+                <text x="290" y="89" fill="#FBCFE8" fontSize="11" fontWeight="900" textAnchor="middle">6 Ω</text>
+
+                {/* Current Flow Arrow */}
+                <path d="M 100 60 L 108 56 L 108 64 Z" fill="#60A5FA" />
+                <text x="100" y="52" fill="#60A5FA" fontSize="10" fontWeight="bold">I_total</text>
+              </svg>
+
+              <div style={{
+                padding: '10px 14px', borderRadius: 10,
+                background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)',
+                fontSize: 11, color: '#93C5FD', fontWeight: 600, textAlign: 'center',
+              }}>
+                ⚡ <strong>Circuit Schematic:</strong> 12 V Battery (internal r = 0.5 Ω) in series with a 4 Ω resistor and parallel network of 2 Ω & 6 Ω resistors.
+              </div>
+            </div>
           ) : (
             /* General Scientific Schematic Render */
             <div style={{
@@ -124,11 +181,8 @@ export default function DiagramModal({ isOpen, onClose, questionText, imageUrl }
               <div style={{ width: 60, height: 60, borderRadius: 16, background: 'rgba(96,165,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Zap style={{ width: 30, height: 30, color: '#60A5FA' }} />
               </div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: 'white', textAlign: 'center' }}>
-                {questionText.slice(0, 90)}...
-              </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 1.6 }}>
-                Refer to the component values and relationships given in the problem statement above.
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#93C5FD', textAlign: 'center', lineHeight: 1.6 }}>
+                Visual Figure / Schematic Reference
               </div>
             </div>
           )}
