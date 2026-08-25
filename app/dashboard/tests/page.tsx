@@ -307,7 +307,7 @@ export default function TestsPage() {
                   }}
                 >
                   {isLocked ? (
-                    <><Lock style={{ width: 13, height: 13 }} /> Pay ₦500 to Unlock</>
+                    <><Lock style={{ width: 13, height: 13 }} /> Pay ₦1,010 to Unlock</>
                   ) : (
                     <><Play style={{ width: 13, height: 13, fill: 'white' }} /> Practice {sub.name}</>
                   )}

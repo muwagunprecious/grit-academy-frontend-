@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setNotifyModal({
               open: true,
               title: '🎉 Payment Successful!',
-              message: 'Your ₦500 access fee has been verified via Paystack. Unlimited platform access is now unlocked!',
+              message: 'Your ₦1,010 access fee has been verified via Paystack. Unlimited platform access is now unlocked!',
               type: 'success',
             });
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -178,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <div style={{ fontSize: 10, color: user?.hasPaidAccessFee ? '#059669' : '#94A3B8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                 {user?.hasPaidAccessFee ? <ShieldCheck style={{ width: 11, height: 11 }} /> : <Lock style={{ width: 11, height: 11 }} />}
-                {user?.hasPaidAccessFee ? 'Paid Account' : '₦500 Unpaid'}
+                {user?.hasPaidAccessFee ? 'Paid Account' : '₦1,010 Unpaid'}
               </div>
             </div>
           </div>
