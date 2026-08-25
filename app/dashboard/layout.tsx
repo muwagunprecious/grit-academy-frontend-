@@ -50,13 +50,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMounted(true);
     checkAuth();
-  }, []);
-
-  useEffect(() => {
-    if (user?.role === 'STUDENT' && !user?.faculty) {
-      setShowFacultyModal(true);
-    }
-  }, [user]);
 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
@@ -85,6 +78,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (user?.role === 'STUDENT' && !user?.faculty) {
+      setShowFacultyModal(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 4);
