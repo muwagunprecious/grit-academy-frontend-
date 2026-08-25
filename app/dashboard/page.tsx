@@ -234,9 +234,12 @@ export default function DashboardOverview() {
               if (!allowed || allowed.length === 0) return true;
 
               const sNorm = s.subjectName.trim().toLowerCase();
+              if (sNorm === 'english' && data?.subjectBreakdown.some(b => b.subjectName.trim().toLowerCase() === 'communication in english')) {
+                return false;
+              }
               return allowed.some(a => {
                 const aNorm = a.trim().toLowerCase();
-                if (sNorm.includes(aNorm) || aNorm.includes(sNorm)) return true;
+                if (sNorm === aNorm || sNorm.includes(aNorm) || aNorm.includes(sNorm)) return true;
                 if (aNorm === 'english' && (sNorm.includes('english') || sNorm.includes('communication'))) return true;
                 if (aNorm === 'math' && (sNorm.includes('math') || sNorm.includes('mathematics'))) return true;
                 if (aNorm === 'crs' && (sNorm.includes('crs') || sNorm.includes('christian'))) return true;

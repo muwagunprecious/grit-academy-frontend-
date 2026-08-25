@@ -74,9 +74,14 @@ export default function TestsPage() {
     if (!allowed || allowed.length === 0) return true;
 
     const sNorm = sub.name.trim().toLowerCase();
+    // Exclude plain 'English' if 'Communication in English' is present in database
+    if (sNorm === 'english' && subjects.some(s => s.name.trim().toLowerCase() === 'communication in english')) {
+      return false;
+    }
+
     return allowed.some(a => {
       const aNorm = a.trim().toLowerCase();
-      if (sNorm.includes(aNorm) || aNorm.includes(sNorm)) return true;
+      if (sNorm === aNorm || sNorm.includes(aNorm) || aNorm.includes(sNorm)) return true;
       if (aNorm === 'english' && (sNorm.includes('english') || sNorm.includes('communication'))) return true;
       if (aNorm === 'math' && (sNorm.includes('math') || sNorm.includes('mathematics'))) return true;
       if (aNorm === 'crs' && (sNorm.includes('crs') || sNorm.includes('christian'))) return true;
