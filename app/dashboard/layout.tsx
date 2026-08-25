@@ -252,20 +252,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {user?.role === 'STUDENT' && (
-              <button
-                onClick={() => setShowFacultyModal(true)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '5px 12px', borderRadius: 20,
-                  background: '#0F172A', color: 'white',
-                  fontSize: 11, fontWeight: 800, border: 'none',
-                  cursor: 'pointer', transition: 'all 0.15s',
-                  boxShadow: '0 2px 8px rgba(15,23,42,0.15)',
-                }}
-              >
-                <GraduationCap style={{ width: 13, height: 13, color: '#10B981' }} />
-                <span>{user?.faculty ? user.faculty : 'Select Faculty'}</span>
-              </button>
+              user?.faculty ? (
+                <div
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '5px 12px', borderRadius: 20,
+                    background: '#0F172A', color: 'white',
+                    fontSize: 11, fontWeight: 800, border: 'none',
+                    cursor: 'default', opacity: 0.95,
+                    boxShadow: '0 2px 8px rgba(15,23,42,0.15)',
+                  }}
+                  title="Faculty selection is locked and permanently assigned to your account"
+                >
+                  <GraduationCap style={{ width: 13, height: 13, color: '#10B981' }} />
+                  <span>{user.faculty} 🔒</span>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowFacultyModal(true)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '5px 12px', borderRadius: 20,
+                    background: '#0F172A', color: 'white',
+                    fontSize: 11, fontWeight: 800, border: 'none',
+                    cursor: 'pointer', transition: 'all 0.15s',
+                    boxShadow: '0 2px 8px rgba(15,23,42,0.15)',
+                  }}
+                >
+                  <GraduationCap style={{ width: 13, height: 13, color: '#10B981' }} />
+                  <span>Select Faculty</span>
+                </button>
+              )
             )}
 
             <div className="ai-badge" style={{
