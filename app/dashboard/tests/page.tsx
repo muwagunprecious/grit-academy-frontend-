@@ -152,7 +152,7 @@ export default function TestsPage() {
   const startCombinedFacultyExam = async () => {
     if (isLocked) { handlePay(); return; }
     
-    const facultySubjectIds = facultySubjects.map(s => s.id);
+    const facultySubjectIds = facultySubjects.map(s => s.id).slice(0, 5);
     if (facultySubjectIds.length === 0) {
       setNotifyModal({
         open: true,

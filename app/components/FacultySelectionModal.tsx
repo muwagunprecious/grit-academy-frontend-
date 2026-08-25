@@ -84,7 +84,7 @@ export default function FacultySelectionModal({ isOpen, onClose, onFacultySaved 
     if (!selectedFaculty) return;
     setSaving(true);
     try {
-      const res = await api.put('/users/profile', { faculty: selectedFaculty });
+      const res = await api.put('/users/me', { faculty: selectedFaculty });
       const updatedUser = res.data?.data?.user;
       if (updatedUser) {
         setUser({ ...user, ...updatedUser, faculty: selectedFaculty });
