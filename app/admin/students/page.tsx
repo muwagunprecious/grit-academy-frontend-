@@ -624,7 +624,7 @@ export default function StudentsAdminPage() {
             display: 'flex', flexDirection: 'column', gap: 20, border: '1px solid #E2E8F0',
           }}>
             {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', pb: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
                   {selectedStudent.firstName} {selectedStudent.lastName}
